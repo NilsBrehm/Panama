@@ -1,3 +1,7 @@
+%% This is a cross correlation demo. 
+% It demonstartes the use of the cross correlation principle used in the
+% analysis of the Panama Moth Project.
+
 % Constants:
 samplingrate = 480 * 1000; % sampling rate in Hz
 pulse_length = 0.4;
