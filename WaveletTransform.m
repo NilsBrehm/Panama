@@ -33,7 +33,7 @@ for a = 1:NumPpulses
 end
 
 %% PLOTTING
-compare_what = 'AA';
+compare_what = 'AP';
 
 if strcmp(compare_what, 'AP')
     maxcorr = MaxWCorr_AP;

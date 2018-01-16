@@ -1,28 +1,42 @@
-p = MaxCorr_raw./sum(sum(MaxCorr_raw)); % overall sum = 1
-en = entropyfilt(p);
+p = MaxCorr_AP./sum(sum(MaxCorr_AP)); % overall sum = 1
+nhood = strel('square', 9);
+en = entropyfilt(p,  nhood.Neighborhood);
 
 %%
 subplot(1,2,1)
 imagesc(p)
-axis equal
+% axis equal
+axis xy
 colorbar
+xticks(1:1:noPulses)
+yticks(1:1:noPulses)
+ylabel('Active Pulses')
+xlabel('Passive Pulses')
+title('Normalized XCorr')
+
 subplot(1,2,2)
 imagesc(en)
-axis equal
+% axis equal
+axis xy
 colorbar
+xticks(1:1:noPulses)
+yticks(1:1:noPulses)
+ylabel('Active Pulses')
+xlabel('Passive Pulses')
+title('Entropy')
 
 %% Calculation
-threshold = 0.75;
+threshold = 0.85;
 cmaxA = zeros(1,noPulses);
 cmaxP = cmaxA;
 ca = cell(1,noPulses);
 cp = cell(1,noPulses);
 for i = 1:noPulses
     
-    cmaxA(i) = find(MaxCorr_raw(i,:) == max(MaxCorr_raw(i,:)));
-    cmaxP(i) = max(MaxCorr_raw(i,:));
-    ca{i} = find(MaxCorr_raw(i,:) >= threshold);
-    cp{i} = find(MaxCorr_raw(:,i) >= threshold);
+    cmaxA(i) = find(MaxCorr_AP(i,:) == max(MaxCorr_AP(i,:)));
+    cmaxP(i) = max(MaxCorr_AP(i,:));
+    ca{i} = find(MaxCorr_AP(i,:) >= threshold);
+    cp{i} = find(MaxCorr_AP(:,i) >= threshold);
 end
 
 %% Max Plot
@@ -80,7 +94,7 @@ grid on
 %% Combined Matrix Plot
 diag = 1:noPulses;
 diagAP = noPulses:-1:1;
-matrix_plot(MaxCorr_raw, noPulses, 'Cross Correlation: Raw Pulses',...
+matrix_plot(MaxCorr_AP, noPulses, noPulses,...
     'Best Cross Correlation [r]','Passive Pulse Number', 'Active Pulse Number',...
     [0, 1]); axis equal; xlim([0.5 noPulses+0.5]); box off; axis xy;
 hold on

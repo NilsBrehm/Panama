@@ -4,7 +4,7 @@ i = 1;
 k = noPulses;
 for pp = 1:noPulses-1
     %sharpness(pp) = (MaxCorr_raw(i,k)+MaxCorr_raw(i,k-1)+MaxCorr_raw(i+1,k)+MaxCorr_raw(i+1,k-1))/4;
-    Sharpness(pp) = std([MaxCorr_raw(i,k) MaxCorr_raw(i,k-1) MaxCorr_raw(i+1,k) MaxCorr_raw(i+1,k-1)]);
+    Sharpness(pp) = std([MaxCorr_AP(i,k) MaxCorr_AP(i,k-1) MaxCorr_AP(i+1,k) MaxCorr_AP(i+1,k-1)]);
     i = i+1;
     k = k-1;
 end
@@ -20,7 +20,7 @@ end
 %% Plot Sharpness
 plot(Sharpness, '-ok')
 xlabel('Zone')
-ylabel('Sharpness ( of CCF) [STD n = 4]')
+ylabel('Sharpness ( of CCF) [STD]')
 xticks(1:noPulses-1)
 xlim([0 noPulses])
 box off

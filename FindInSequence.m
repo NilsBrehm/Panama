@@ -1,8 +1,10 @@
 plot(MaxCorr_AA(1,:))
 
 %%
-dummyA = MaxCorr_AA(10,:);
-dummyP = MaxCorr_AP(10,:);
+AP = 12;
+PP = 12;
+dummyA = MaxCorr_AA(AP,:);
+dummyP = MaxCorr_AP(PP,:);
 dummyA1 = MaxCorr_AA(2,:);
 dummyP1 = MaxCorr_AP(2,:);
 %%
