@@ -76,7 +76,7 @@ noverlap = window_size-5;
 nfft = 512;
 spectrogram(data, window, noverlap, nfft, samplingrate, 'yaxis')
 xlim([0, tt(end)*1000])
-ylim([0 120])
+ylim([0 150])
 cl = colorbar('xlim', [-110 -40], 'Fontsize',10', 'FontName', fontfamlily);
 cl.Label.String = '[dB/Hz]';
 % caxis([-100 -45])
