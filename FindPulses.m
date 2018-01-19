@@ -6,8 +6,8 @@ clear
 clc
 close all
 
-path_linux = '/media/brehm/Data/Panama/DataForPaper/BCI/';
-path_windows = 'D:\Masterarbeit\2018-01-12\Panama\DataForPaper\SeveralSpecies\i pp273 idalus fasciipuncta\';
+path_linux = '/media/brehm/Data/Panama/DataForPaper/';
+path_windows = 'D:\Masterarbeit\PanamaProject\DataForPaper\';
 
 [file,path] = uigetfile([path_windows, '*.wav'],'select a wav file');
 open(fullfile(path,file))
@@ -15,13 +15,29 @@ open(fullfile(path,file))
 %% Use this to change the path:
 path = '/media/brehm/Data/Panama/DataForPaper/Castur/PK1285/Pk12850006/';
 
-% %% Template
-% pulse_length = 0.4;
-% tau = 0.1;
-% frequency = 50;
-% mph = .5;
-% mpd = 100;
-% [pulse_locations, pulse_times, r, lags] = TemplatePeaks(data,samplingrate/1000, pulse_length, frequency, tau, mph, mpd);
+%% Template
+pulse_length = 0.6;
+tau = 0.1;
+frequency = 50;
+mph = .15;
+mpd = 80;
+[pulse_locations, pulse_times, r, lags, template] = TemplatePeaks(data ,samplingrate/1000, pulse_length, frequency, tau, mph, mpd);
+%%
+mpp = 0;
+mpw = 0;
+th = 0.04;
+findpeaks(r, 'MinPeakHeight', mph, 'MinPeakDistance', mpd,...
+    'MinPeakWidth', mpw, 'MinPeakProminence', mpp, 'Annotate', 'extent', ...
+    'Threshold', th)
+
+%% Plot pulses found by template method
+plot(data)
+hold on
+plot(pulse_locations, data(pulse_locations), 'ro')
+hold on
+template_time = 1:length(template);
+shift = 1000;
+plot(template_time + (pulse_locations(ceil(end/2))+shift), template, 'r')
 
 %% Derivative Filter:
 d1 = data; % save raw data
@@ -59,7 +75,7 @@ filternoise = 0;
 
 thresholdA = 1*std(data);
 thresholdP = 1*std(data);
-pulselength = 140; % in samples
+pulselength = 300; % in samples
 manualcorrection = 0;
 if filternoise == 1
     [Peak, samples] = findpulsesalgo(d1, thresholdA, thresholdP, pulselength, filternoise);
@@ -182,6 +198,17 @@ else
     newsamples(end+1:end+length(samples.passive(id1+1:end))) = samples.passive(id1+1:end);
 end
 samples.passive = newsamples;
+
+%% Remove pulses
+% active
+nr_a = 1;
+samples.active(nr_a) = [];
+Peak = [samples.active, samples.passive]; % Rebuild Peak
+
+%% passive
+nr_p = 1;
+samples.passive(nr_p) = [];
+Peak = [samples.active, samples.passive]; % Rebuild Peak
 
 %%
 % -----------------------------------------------------------------------

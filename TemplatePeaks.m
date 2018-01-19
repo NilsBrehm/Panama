@@ -1,4 +1,4 @@
-function [pulse_locations, pulse_times, r, lags] = TemplatePeaks(data,samplingrate, pulse_length, frequency, tau, mph, mpd)
+function [pulse_locations, pulse_times, r, lags, template] = TemplatePeaks(data,samplingrate, pulse_length, frequency, tau, mph, mpd)
 % The idea here ist to use a template pulse, eihter cuting out one of the
 % pulses in the recording or using a model template pulse (damped sinus),
 % to find the active and passive pulses in a recording. The template is
@@ -30,7 +30,7 @@ function [pulse_locations, pulse_times, r, lags] = TemplatePeaks(data,samplingra
 %% Model Template (damped sinus)
 samplingrate = samplingrate * 1000; % sampling rate in Hz
 t = 0:1/samplingrate:pulse_length/1000; % pulse length = 0.4 ms
-amp = 1;
+amp = round(max(data), 1);
 f = frequency*1000*2*pi; % 2*pi*Hz for pulse to have freq = Hz
 dumping = tau/1000; % tau in seconds (0.1 ms)
 xshift = 0; % no shift
@@ -65,9 +65,9 @@ for i = 1:length(pulse_locations)
     [pksA, locsA] = findpeaks(pp(i,:), 'MinPeakHeight', 0.01);
     [pksP, locsP] = findpeaks(-pp(i,:), 'MinPeakHeight', 0.01);
     if locsA(1) > locsP(1)
-        disp('P')
+%         disp('P')
     else
-        disp('A')
+%         disp('A')
     end
 %     plot(data(pulse_locations(i)-20:pulse_locations(i)+100))
 %     pause(1)
