@@ -1,7 +1,7 @@
 %% Get number of calls in directory
 clear
 clc
-pathname = '/media/brehm/Data/Panama/DataForPaper/Castur/PK1285/Pk12850014/';
+pathname = 'D:\Masterarbeit\PanamaProject\DataForPaper\Castur\PK1285\Pk12850006\';
 d = dir(pathname);
 dirFlags = [d.isdir];
 folders = d(dirFlags);
@@ -10,7 +10,7 @@ number_of_calls = length(folders) - 2;
 %%
 callstats = table();
 for i = 1:number_of_calls
-    filename = [pathname, 'call_nr_', num2str(i), '/call_stats.xls'];
+    filename = [pathname, 'call_nr_', num2str(i), '\call_stats.xls'];
     a = readtable(filename);
     callstats = [callstats; a];
 end

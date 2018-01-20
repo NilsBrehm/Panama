@@ -18,8 +18,8 @@ xshift = 0; % no shift
 
 %% Compute pulse
 pulse = 0;
-frequency = [25, 60];
-w = [.05, .6];
+frequency = [29, 65, 87];
+w = [.4, .6, .3];
 for i = 1:length(frequency)
     f = frequency(i)*1000*2*pi;
     pulse = pulse + artifical_moth(t,w(i)*amp,f, dumping, xshift);
@@ -50,7 +50,7 @@ box off
 
 %% Spectrogram
 figure()
-window_size = 80; % the larger the better the spectral res (temp res goes down)
+window_size = 20; % the larger the better the spectral res (temp res goes down)
 window = hann(window_size);
 %noverlap = round(window_size*0.75);
 noverlap = window_size-5;

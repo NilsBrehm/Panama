@@ -7,7 +7,7 @@ clc
 close all
 
 path_linux = '/media/brehm/Data/Panama/DataForPaper/';
-path_windows = 'D:\Masterarbeit\PanamaProject\DataForPaper\';
+path_windows = 'D:\Masterarbeit\PanamaProject\DataForPaper\Melese_incertus\';
 
 [file,path] = uigetfile([path_windows, '*.wav'],'select a wav file');
 open(fullfile(path,file))
@@ -43,7 +43,7 @@ plot(template_time + (pulse_locations(ceil(end/2))+shift), template, 'r')
 d1 = data; % save raw data
 d1 = diff(d1);
 
-%%
+%% ========================================================================
 plot(data)
 
 %% Sampling Rate Estimation
@@ -71,11 +71,11 @@ d1(d1<cutoff1 & d1>cutoff2) = 0;
 
 %% Find Pulses
 % Do you want to use noise filtered data?
-filternoise = 0;
+filternoise = 1;
 
-thresholdA = 1*std(data);
-thresholdP = 1*std(data);
-pulselength = 300; % in samples
+thresholdA = .5*std(data);
+thresholdP = .5*std(data);
+pulselength = 200; % in samples
 manualcorrection = 0;
 if filternoise == 1
     [Peak, samples] = findpulsesalgo(d1, thresholdA, thresholdP, pulselength, filternoise);
@@ -123,8 +123,13 @@ singlepulselength = zeros(1, length(Peak));
 j = 1;
 for i = Peak
     k = 0;
-    while max(data(i+k:i+k+100)) > maxnoise
+    %while max(data(i+k:i+k+100)) > maxnoise
+    while max(data(i+k:i+k+100)) >= quantile(data, .95)
         k = k+1;
+        % Make sure that the pulse does not exceeds the next one
+        if j < length(Peak) && (i+k) >= Peak(j+1)
+            break;
+        end
     end
     singlepulselength(j) = k;
     j = j+1;
