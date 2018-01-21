@@ -1,4 +1,17 @@
 %% Plotting for paper figures
+% This script computes and saves all the figures for later publications.
+% 
+% - Matrix Plots (Max. Cross Correlation: AvsA, PvsP and AvsP)
+% - Time Signal and Spectrogram
+% - Time Signal of all single pulses (active and passive sperately)
+% - Active and Passive pulses marked with colors
+% 
+% ToDo:
+% - Power Spectrum ?
+% 
+% Copyright Nils Brehm 2018
+
+%%
 % Use this to change the path:
 % path = 'D:\Masterarbeit\2018-01-12\Panama\DataForPaper\Castur\PK1248\';
 % filename = [path, file(1:end-4), '\'];

@@ -1,6 +1,11 @@
 %% ARTIFICIAL CALL
 % This script computes artificial moth calls. The single pulses are based
 % on a damped sinus model.
+% ToDo:
+% - Mimick calls with different properties to give an ideal example of the
+% cross correlation analysis results
+% 
+% Copyright Nils Brehm 2018
 
 clear
 clc

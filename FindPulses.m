@@ -1,5 +1,11 @@
 %% DATA GATHERING AND PULSE DETECTION PART --------------------------------
 % -------------------------------------------------------------------------
+% ToDo: 
+% - Filter Signal
+% - Improve Pulse detection (Template approach)
+% - Improve Pulse duration detection
+
+% Copyright Nils Brehm 2018
 
 %% Open data
 clear
@@ -21,7 +27,9 @@ tau = 0.1;
 frequency = 50;
 mph = .15;
 mpd = 80;
-[pulse_locations, pulse_times, r, lags, template] = TemplatePeaks(data ,samplingrate/1000, pulse_length, frequency, tau, mph, mpd);
+[pulse_locations, pulse_times, r, lags, template] = ...
+    TemplatePeaks(data ,samplingrate/1000, pulse_length, ...
+    frequency, tau, mph, mpd);
 %%
 mpp = 0;
 mpw = 0;

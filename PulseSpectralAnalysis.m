@@ -1,3 +1,8 @@
+%% Comparison of Spectral Paramters of single pulses
+% Based on Magnitude-squared coherence.
+% 
+% Copyright Nils Brehm 2018
+
 %% High Pass Filter
 fc = 5000; % Cut off frequency
 fs = 480*1000; % Sampling rate

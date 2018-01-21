@@ -1,6 +1,8 @@
 %% MOTH PULSE MODEL (artificial moth pulses)
 % This script computes an artifical moth pulse based on a damped sinus
 % model.
+% 
+% Copyright Nils Brehm 2018
 
 % Constants
 samplingrate = 480 * 1000; % sampling rate in Hz

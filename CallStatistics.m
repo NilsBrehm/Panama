@@ -1,3 +1,16 @@
+%% Call Statistics
+% The idea is to automaticaly extract as much descriptive statistics about
+% the pulse trains (calls) as possible.
+% 
+% - Pulse Duration (active and passive)
+% - Inter Pulse Interval (IPI) (active and passive)
+% - Inter Train Interval (ITI) (pause between active and passive train)
+% - Pulse Train Duration (active and passive)
+% - Call Duration
+% - Frequency Components 
+% 
+% Copyright Nils Brehm 2018
+
 %% Get number of calls in directory
 clear
 clc
