@@ -79,11 +79,11 @@ d1(d1<cutoff1 & d1>cutoff2) = 0;
 
 %% Find Pulses
 % Do you want to use noise filtered data?
-filternoise = 1;
+filternoise = 0;
 
-thresholdA = .5*std(data);
-thresholdP = .5*std(data);
-pulselength = 200; % in samples
+thresholdA = 4*std(data);
+thresholdP = 5*std(data);
+pulselength = 3500; % in samples
 manualcorrection = 0;
 if filternoise == 1
     [Peak, samples] = findpulsesalgo(d1, thresholdA, thresholdP, pulselength, filternoise);
@@ -129,10 +129,12 @@ disp(['Total Pulses Found: ', num2str(length(Peak))])
 %% Detect Single Pulse Length
 singlepulselength = zeros(1, length(Peak));
 j = 1;
+limit_spl = quantile(data, .95);
+
 for i = Peak
     k = 0;
-    %while max(data(i+k:i+k+100)) > maxnoise
-    while max(data(i+k:i+k+100)) >= quantile(data, .95)
+    %     while max(data(i+k:i+k+100)) > maxnoise
+    while max(data(i+k:i+k+100)) >= limit_spl
         k = k+1;
         % Make sure that the pulse does not exceeds the next one
         if j < length(Peak) && (i+k) >= Peak(j+1)

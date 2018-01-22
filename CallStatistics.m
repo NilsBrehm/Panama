@@ -9,22 +9,45 @@
 % - Call Duration
 % - Frequency Components 
 % 
+% call_stats:
+% 01: single pulse length
+% 02: active single pulse length
+% 03: passive single pulse length
+% 04: Inter Pulse Intervals
+% 05: Active Inter Pulse Intervals
+% 06: Passive Inter Pulse Intervals
+% 07: Inter Train Intervals (method 1)
+% 08: Inter Train Intervals (method 2)
+% 09: Call Duration
+% 10: Active Train Duration
+% 11: Passive Train Duration
+% 
 % Copyright Nils Brehm 2018
 
 %% Get number of calls in directory
 clear
 clc
-recordings = {'Pk12850006', 'Pk12850008', 'Pk12850009', 'Pk12850011', 'Pk12850012', 'Pk12850013', 'Pk12850014'};
-% recordings = {'Pk12870020'};
+animal = 'D:\Masterarbeit\PanamaProject\DataForPaper\Castur\PK1289\';
+rec_nr = 2;
+disp(['number of recordings: ', num2str(rec_nr)])
+d = dir(animal);
+dirFlags = [d.isdir];
+folders = d(dirFlags);
+recordings = {folders.name};
+recordings = recordings(3:(2+rec_nr));
 
 %% Collect data from saved data
+tic
 IPI_A = [];
 IPI_P = [];
 call_duration = [];
 pl_A = [];
 pl_P = [];
+call_stats = {};
+q = 1;
+
 for k = 1:length(recordings)
-    pathname = ['D:\Masterarbeit\PanamaProject\DataForPaper\Castur\PK1285\', recordings{k}, '\'];
+    pathname = [animal, recordings{k}, '\'];
     d = dir(pathname);
     dirFlags = [d.isdir];
     folders = d(dirFlags);
@@ -33,34 +56,66 @@ for k = 1:length(recordings)
     % Loop through all calls
     for i = 1:number_of_calls
         filename = [pathname, 'call_nr_', num2str(i), '\call_nr_', num2str(i), '.mat'];
-        load(filename, 'A_IPIs', 'P_IPIs', 'samples', 'samplingrate', ...
-            'singlepulselength');
-        IPI_A = [IPI_A, A_IPIs];
-        IPI_P = [IPI_P, P_IPIs];
+        load(filename,'data', 'samples', 'samplingrate', 'singlepulselength');
         
-        pulse_train_duration = (max([samples.passive, samples.active]) - min([samples.passive, samples.active]))/samplingrate*1000;
-        call_duration = [call_duration, pulse_train_duration];
+        % Compute Call Statistics
+        call_stats(q, :) = compute_call_statistics(data,...
+            samples, samplingrate, singlepulselength, true);
+        q = q+1;
         
-        spl = singlepulselength / samplingrate * 1000;
-        spl_A = spl(1:length(samples.active));
-        spl_P = spl(length(samples.active)+1:end);
-        pl_A = [pl_A, spl_A];
-        pl_P = [pl_P, spl_P];
+%         % Inter Pulse Intervals
+%         IPI_A = [IPI_A, A_IPIs];
+%         IPI_P = [IPI_P, P_IPIs];
+%         
+%         % Call Duration
+%         pulse_train_duration = (max([samples.passive, samples.active]) - min([samples.passive, samples.active]))/samplingrate*1000;
+%         call_duration = [call_duration, pulse_train_duration];
+%         
+%         % Pulse Duration
+%         spl = singlepulselength / samplingrate * 1000;
+%         spl_A = spl(1:length(samples.active));
+%         spl_P = spl(length(samples.active)+1:end);
+%         pl_A = [pl_A, spl_A];
+%         pl_P = [pl_P, spl_P];
         
-        if sum(spl > 2)
-            disp(['Look at: ',recordings{k} , ' - call nr  ', num2str(i)])
-        end
+%         if sum(spl > 2)
+%             disp(['Look at: ',recordings{k} , ' - call nr  ', num2str(i)])
+%         end
     end
-    
+    disp([num2str(k/length(recordings)*100), ' % done'])
+end
+toc
+
+
+
+%%
+IPI_A = []; IPI_P = []; pl_A = []; pl_P = []; call_duration = [];
+AT_duration = []; PT_duration = [];
+
+for i = 1:size(call_stats, 1)
+    IPI_A = [IPI_A, call_stats{i, 5}];
+    IPI_P = [IPI_P, call_stats{i, 6}];
+    pl_A = [pl_A, call_stats{i, 2}];
+    pl_P = [pl_P, call_stats{i, 3}];
+    call_duration = [call_duration, call_stats{i, 9}];
+    AT_duration = [AT_duration, call_stats{i, 10}];
+    PT_duration = [PT_duration, call_stats{i, 11}];
 end
 
-%% Histogram
+%% Save Call Stats to HDD
+save([animal, 'call_statistics.mat'])
+
+%% Histogram IPI
 figure()
-histogram(IPI_A, 'Normalization', 'probability')
-xlabel('Active IPI [ms]')
-ylabel('Probability')
+plot_hist(pl_A, pl_P, 0.05, 'Pulse Duration [ms]', 'Probability', {'Active Pulses', 'Passive Pulses'})
+% hold on
+% plot([median(pl_A), median(pl_A)], [0, .5], 'b', 'LineWidth', 2)
+% hold on
+% plot([median(pl_P), median(pl_P)], [0, .5], 'r', 'LineWidth', 2)
 
 %% BoxPlot IPI
+% Rank Sum Test:
+[p,~,~] = ranksum(IPI_A, IPI_P);
 IPI = [IPI_A, IPI_P];
 group = [zeros(1,length(IPI_A)), ones(1,length(IPI_P))];
 figure()
@@ -69,15 +124,35 @@ boxplot(IPI, group, 'Labels', ...
     ['Passive Pulses (n = ', num2str(length(IPI_P)), ')']},...
     'DataLim', [-10, 10], 'ExtremeMode', 'compress', 'colors', 'k')
 ylabel('Inter Pulse Interval [ms]')
+text(1.1, 8, ['Wilcoxon rank sum test: p = ', num2str(p)])
+text(1.1, 7.5, ['Difference = ', num2str(round(abs(median(IPI_A)-median(IPI_P)), 3)), ' ms'])
 
 %% BoxPlot Pulse Length
+% Rank Sum Test:
+[p,~,~] = ranksum(pl_A, pl_P);
+% boxplot
 PL = [pl_A, pl_P];
 group = [zeros(1,length(pl_A)), ones(1,length(pl_P))];
 figure()
 boxplot(PL, group, 'Labels', ...
     {['Active Pulses (n = ', num2str(length(pl_A)), ')'],...
     ['Passive Pulses (n = ', num2str(length(pl_P)), ')']},...
-     'DataLim', [0, 3], 'ExtremeMode', 'compress', ...
      'colors', 'k')
 ylabel('Pulse Duration [ms]')
+text(1.1, 1.4, ['Wilcoxon rank sum test: p = ', num2str(p,4)])
+text(1.1, 1.2, ['Difference = ', num2str(round(abs(median(pl_A)-median(pl_P)), 3)), ' ms'])
 
+%% BoxPlot AT and PT duration
+% Rank Sum Test:
+[p,~,~] = ranksum(AT_duration, PT_duration);
+% boxplot
+dur = [AT_duration, PT_duration];
+group = [zeros(1,length(AT_duration)), ones(1,length(PT_duration))];
+figure()
+boxplot(dur, group, 'Labels', ...
+    {['Active Trains (n = ', num2str(length(AT_duration)), ')'],...
+    ['Passive Trains (n = ', num2str(length(PT_duration)), ')']},...
+     'colors', 'k')
+ylabel('Train Duration [ms]')
+text(1, 25, ['Wilcoxon rank sum test: p = ', num2str(round(p,3))])
+text(1, 24, ['Difference = ', num2str(round(abs(median(AT_duration)-median(PT_duration)), 2)), ' ms'])

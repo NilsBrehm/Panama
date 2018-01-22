@@ -4,10 +4,10 @@
 disp(['min. pulse length: ', num2str(min(singlepulselength)), ' samples'])
 pulsewindowstart = -5;
 % pulsewindowend = round(median(singlepulselength))-20;
-pulsewindowend = round(min(singlepulselength))-50;
+pulsewindowend = round(min(singlepulselength))+2000;
 windowstart = 1;
 % windowend = round(median(singlepulselength))-20;
-windowend = round(min(singlepulselength))-50;
+windowend = round(min(singlepulselength))+2000;
 baseline = 5;
 % !!! SET CORRECT SAMPLING RATE !!! --------------------------------------
 samplingrate = 480 * 1000;

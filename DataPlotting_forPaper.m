@@ -28,7 +28,7 @@ end
 
 % Load colormap
 % load('/media/brehm/Data/Panama/code/Panama/selena_colormap.mat')
-load('D:\Masterarbeit\2018-01-12\Panama\code\Panama\selena_colormap.mat')
+load('D:\Masterarbeit\PanamaProject\Panama\selena_colormap.mat')
 
 % Set Font:
 fontfamlily = 'Times';
