@@ -49,6 +49,14 @@ for k = 1:length(animals)
     n_AT_dur(k) = (length(d.AT_duration));
     n_PT_dur(k) = (length(d.PT_duration));
     
+    IPI_A_median(k) = median(d.IPI_A);
+    IPI_P_median(k) = median(d.IPI_P);
+    pl_A_median(k) = median(d.pl_A);
+    pl_P_median(k) = median(d.pl_P);
+    AT_dur_median(k) = median(d.AT_duration);
+    PT_dur_median(k) = median(d.PT_duration);
+    ITI_median(k) = median(cell2mat(d.call_stats(:,7)));
+    call_dur_median(k) = median(d.call_duration);
     
     IPI_A = [IPI_A, d.IPI_A];
     IPI_P = [IPI_P, d.IPI_P];
@@ -93,6 +101,10 @@ labely = 'Active Interpulse Interval [ms]';
 plot_boxplot(IPI_A, group_IPI_A, legend_label_IPI_A, [-10, 6], labely)
 ylim([0 inf])
 title('Active Interpulse Intervals')
+text(1.3, IPI_A_median(1), num2str(round(IPI_A_median(1),2)), 'FontSize', 14, 'Color', 'k')
+text(2.3, IPI_A_median(2), num2str(round(IPI_A_median(2),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, IPI_A_median(3), num2str(round(IPI_A_median(3),2)), 'FontSize', 14, 'Color', 'k')
+
 export_fig([pathname, 'A_IPI.png'], '-r300', '-q101')
 close
 
@@ -103,6 +115,10 @@ labely = 'Passive Interpulse Interval [ms]';
 plot_boxplot(IPI_P, group_IPI_P, legend_label_IPI_P, [-10, 20], labely)
 ylim([0 inf])
 title('Passive Interpulse Intervals')
+text(1.3, IPI_P_median(1), num2str(round(IPI_P_median(1),2)), 'FontSize', 14, 'Color', 'k')
+text(2.3, IPI_P_median(2), num2str(round(IPI_P_median(2),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, IPI_P_median(3), num2str(round(IPI_P_median(3),2)), 'FontSize', 14, 'Color', 'k')
+
 export_fig([pathname, 'P_IPI.png'], '-r300', '-q101')
 close
 
@@ -114,6 +130,10 @@ plot_boxplot(pl_A, group_pl_A, legend_label_pl_A, [-10, 5], labely)
 ylim([0 inf])
 yticks(0:.5:5)
 title('Acive Pulse Duration')
+text(1.3, pl_A_median(1), num2str(round(pl_A_median(1),2)), 'FontSize', 14, 'Color', 'k')
+text(2.3, pl_A_median(2), num2str(round(pl_A_median(2),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, pl_A_median(3), num2str(round(pl_A_median(3),2)), 'FontSize', 14, 'Color', 'k')
+
 export_fig([pathname, 'A_PDur.png'], '-r300', '-q101')
 close
 
@@ -125,6 +145,10 @@ plot_boxplot(pl_P, group_pl_P, legend_label_pl_P, [-10, 5], labely)
 ylim([0 inf])
 yticks(0:.5:5)
 title('Passive Pulse Duration')
+text(1.3, pl_P_median(1), num2str(round(pl_P_median(1),2)), 'FontSize', 14, 'Color', 'k')
+text(2.3, pl_P_median(2), num2str(round(pl_P_median(2),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, pl_P_median(3), num2str(round(pl_P_median(3),2)), 'FontSize', 14, 'Color', 'k')
+
 export_fig([pathname, 'P_PDur.png'], '-r300', '-q101')
 close
 
@@ -136,6 +160,10 @@ plot_boxplot(AT_dur, group_AT_dur, legend_label_AT_dur, [-10, 80], labely)
 ylim([0 inf])
 yticks(0:20:100)
 title('Active Train Duration')
+text(1.3, AT_dur_median(1), num2str(round(AT_dur_median(1),2)), 'FontSize', 14, 'Color', 'k')
+text(2.3, AT_dur_median(2), num2str(round(AT_dur_median(2),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, AT_dur_median(3), num2str(round(AT_dur_median(3),2)), 'FontSize', 14, 'Color', 'k')
+
 export_fig([pathname, 'A_TrainDur.png'], '-r300', '-q101')
 close
 
@@ -147,6 +175,10 @@ plot_boxplot(PT_dur, group_PT_dur, legend_label_PT_dur, [-10, 200], labely)
 ylim([0 inf])
 yticks(0:20:500)
 title('Passive Train Duration')
+text(1.3, PT_dur_median(1), num2str(round(PT_dur_median(1),2)), 'FontSize', 14, 'Color', 'k')
+text(2.3, PT_dur_median(2), num2str(round(PT_dur_median(2),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, PT_dur_median(3), num2str(round(PT_dur_median(3),2)), 'FontSize', 14, 'Color', 'k')
+
 export_fig([pathname, 'P_TrainDur.png'], '-r300', '-q101')
 close
 
@@ -158,6 +190,10 @@ plot_boxplot(ITI, group_ITI, legend_label_ITI, [-10, 120], labely)
 ylim([0 inf])
 yticks(0:20:250)
 title('Intertrain Interval')
+text(1.3, ITI_median(1), num2str(round(ITI_median(1),2)), 'FontSize', 14, 'Color', 'k')
+text(2.3, ITI_median(2), num2str(round(ITI_median(2),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, ITI_median(3), num2str(round(ITI_median(3),2)), 'FontSize', 14, 'Color', 'k')
+
 export_fig([pathname, 'ITI.png'], '-r300', '-q101')
 close
 
@@ -169,6 +205,10 @@ plot_boxplot(call_dur, group_call_dur, legend_label_call_dur, [-10, 400], labely
 ylim([0 inf])
 yticks(0:50:500)
 title('Call Duration')
+text(1.3, call_dur_median(1), num2str(round(call_dur_median(1),2)), 'FontSize', 14, 'Color', 'k')
+text(2.3, call_dur_median(2), num2str(round(call_dur_median(2),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, call_dur_median(3), num2str(round(call_dur_median(3),2)), 'FontSize', 14, 'Color', 'k')
+
 export_fig([pathname, 'call_dur.png'], '-r300', '-q101')
 close
 

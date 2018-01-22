@@ -25,11 +25,13 @@ path = '/media/brehm/Data/Panama/DataForPaper/Castur/PK1285/Pk12850006/';
 pulse_length = 0.6;
 tau = 0.1;
 frequency = 50;
-mph = .15;
-mpd = 80;
+mph = .2;
+mpd = 300;
 [pulse_locations, pulse_times, r, lags, template] = ...
     TemplatePeaks(data ,samplingrate/1000, pulse_length, ...
     frequency, tau, mph, mpd);
+findpeaks(r, 'MinPeakHeight', mph, 'MinPeakDistance', mpd)
+
 %%
 mpp = 0;
 mpw = 0;
@@ -68,7 +70,7 @@ if noise == 0
 end
 
 %% Noise filtering:
-noisefactor = 2;
+noisefactor = 10;
 d1 = data; % save raw data
 maxnoise = max(noise(:,2));
 minnoise = min(noise(:,2));
@@ -81,9 +83,9 @@ d1(d1<cutoff1 & d1>cutoff2) = 0;
 % Do you want to use noise filtered data?
 filternoise = 0;
 
-thresholdA = 4*std(data);
-thresholdP = 5*std(data);
-pulselength = 3500; % in samples
+thresholdA = 1*std(data);
+thresholdP = 1*std(data);
+pulselength = 240; % in samples
 manualcorrection = 0;
 if filternoise == 1
     [Peak, samples] = findpulsesalgo(d1, thresholdA, thresholdP, pulselength, filternoise);

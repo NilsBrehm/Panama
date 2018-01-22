@@ -208,5 +208,5 @@ end
 disp('finished Marked plot')
 
 %% Save Data
-% save([filename, '.mat'])
-% disp('Plotting done and data saved')
+save([filename, '.mat'])
+disp('Plotting done and data saved')
