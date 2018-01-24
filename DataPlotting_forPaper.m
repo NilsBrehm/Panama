@@ -18,8 +18,10 @@
 
 %% Plotting Parameters
 clc
+filename = [path, file(1:end-4), '\'];
+toomanypulses = 1;
 callseries = 0;
-save_figs = 1;
+save_figs = 0;
 if save_figs == 1
     displayfigs = 'off';
 else
@@ -65,9 +67,14 @@ for k = 1:length(modes)
     fig = figure('Visible', displayfigs);
     set(fig, 'Color', 'white', 'Units', 'centimeters', 'position', pos_fig)
     matrix_plot(maxcorr, noPulses1, noPulses2, 'Max. Cross Correlation [r]', ...
-        xtitle, ytitle, [0, 1]);
+        xtitle, ytitle, [0, 1], false);
     axis equal; xlim([0.5 noPulses2+0.5]); ylim([0.5 noPulses1+0.5]); box off; axis xy;
     figname = [filename, fname, '.png'];
+    
+    if toomanypulses
+        set(gca, 'xtick', [], 'ytick', [])
+    end
+    
     if save_figs == 1
         export_fig(figname, '-r300', '-q101')
         close
@@ -109,7 +116,7 @@ ylabel('Amplitude', 'fontsize', 10, 'FontName', fontfamlily)
 box off
 colorbar('Visible','off')
 
-figname = [filename, 'Spectrogram', '.png'];
+figname = [filename, '/Spectrogram', '.png'];
 set(gcf, 'Color', 'white')
 if save_figs == 1
 export_fig(figname,'-m2')
@@ -206,6 +213,17 @@ export_fig(figname,'-m2')
 close
 end
 disp('finished Marked plot')
+
+%% Combined Matrix Plot
+figure()
+combined_matrix_plot(MaxCorr_AP, 0.8)
+figname = [filename, '_CombinedMatrixPlot', '.png'];
+set(gcf, 'Color', 'white')
+if save_figs == 1
+    export_fig(figname,'-m2')
+    close
+end
+disp('finished Combined Matrix Plot')
 
 %% Save Data
 save([filename, '.mat'])

@@ -70,7 +70,7 @@ if noise == 0
 end
 
 %% Noise filtering:
-noisefactor = 10;
+noisefactor = 4;
 d1 = data; % save raw data
 maxnoise = max(noise(:,2));
 minnoise = min(noise(:,2));
@@ -81,11 +81,11 @@ d1(d1<cutoff1 & d1>cutoff2) = 0;
 
 %% Find Pulses
 % Do you want to use noise filtered data?
-filternoise = 0;
+filternoise = 1;
 
 thresholdA = 1*std(data);
-thresholdP = 1*std(data);
-pulselength = 240; % in samples
+thresholdP = 1.4*std(data);
+pulselength = 100; % in samples
 manualcorrection = 0;
 if filternoise == 1
     [Peak, samples] = findpulsesalgo(d1, thresholdA, thresholdP, pulselength, filternoise);
@@ -218,12 +218,12 @@ samples.passive = newsamples;
 
 %% Remove pulses
 % active
-nr_a = 1;
+nr_a = 14;
 samples.active(nr_a) = [];
 Peak = [samples.active, samples.passive]; % Rebuild Peak
 
 %% passive
-nr_p = 1;
+nr_p = 8;
 samples.passive(nr_p) = [];
 Peak = [samples.active, samples.passive]; % Rebuild Peak
 
@@ -297,6 +297,7 @@ for i = 1:length(callstarts)
     callaudio = data(callstarts(i):callends(i));
     audiowrite([audio_path, '\call_nr_', num2str(i),'.wav'],callaudio,samplingrate)
 end
+disp('Audio Files saved')
 
 %% ========================================================================
 % ++++ JUNKYARD +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

@@ -2,12 +2,12 @@
 % -------------------------------------------------------------------------
 %% Choose analysis window
 disp(['min. pulse length: ', num2str(min(singlepulselength)), ' samples'])
-pulsewindowstart = -5;
+pulsewindowstart = -10;
 % pulsewindowend = round(median(singlepulselength))-20;
-pulsewindowend = round(min(singlepulselength))+150;
+pulsewindowend = round(min(singlepulselength))+80;
 windowstart = 1;
 % windowend = round(median(singlepulselength))-20;
-windowend = round(min(singlepulselength))+150;
+windowend = round(min(singlepulselength))+80;
 baseline = 5;
 % !!! SET CORRECT SAMPLING RATE !!! --------------------------------------
 samplingrate = 480 * 1000;
@@ -70,7 +70,13 @@ disp('Analysis done and data saved')
 
 %[minMSE_FIT_raw, shift_FIT_raw] = shifted_MSE(FIT_a, FIT_p, 1, length(FIT_a));
 %% PLOT MSE
-imagesc(minMSE_PP);axis xy; colorbar; colormap(flipud(parula))
+imagesc(minMSE_AP);axis xy; 
+c = colorbar; colormap(flipud(parula))
+xlabel('Passive Pulse Number')
+ylabel('Active Pulse Number')
+xticks(1:1:noPulsesP)
+yticks(1:1:noPulsesA)
+c.Label.String = 'min. Mean Squared Error';
 
 %% Find max freq
 Amainfreqs = cell(1,size(pulses.active,2));
