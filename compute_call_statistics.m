@@ -1,4 +1,4 @@
-function call_stats = compute_call_statistics(data, samples, samplingrate, singlepulselength, dspl)
+function call_stats = compute_call_statistics(data, samples, samplingrate, singlepulselength, dspl, please_plot)
 % Computes descripitve statistics of moths calls.
 %
 % - Pulse Duration (active and passive)
@@ -33,7 +33,8 @@ function call_stats = compute_call_statistics(data, samples, samplingrate, singl
 
 % Detect Single Pulse Length
 Peak = [samples.active, samples.passive];
-limit =  quantile(data, .95);
+% limit = quantile(data, .9);
+limit = .25*std(data);
 
 if dspl
     singlepulselength = zeros(1, length(Peak));
@@ -70,4 +71,13 @@ call_stats = {spl, spl_A, spl_P, IPIs, A_IPIs, P_IPIs, ITI, ITI2,...
     pulse_train_duration, A_dur, P_dur};
 %           9               10     11
 
+% Plot marked pulses with their respective pulse length
+if please_plot
+    plot(data)
+    hold on
+    for p = 1:length(Peak)
+        plot(Peak(p):Peak(p)+singlepulselength(p), data(Peak(p):Peak(p)+singlepulselength(p)), 'r')
+        hold on
+    end
+end
 end

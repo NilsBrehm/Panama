@@ -19,9 +19,10 @@
 %% Plotting Parameters
 clc
 filename = [path, file(1:end-4), '\'];
-toomanypulses = 1;
+toomanypulses = 0;
+showvalues = true;
 callseries = 0;
-save_figs = 0;
+save_figs = 1;
 if save_figs == 1
     displayfigs = 'off';
 else
@@ -67,7 +68,7 @@ for k = 1:length(modes)
     fig = figure('Visible', displayfigs);
     set(fig, 'Color', 'white', 'Units', 'centimeters', 'position', pos_fig)
     matrix_plot(maxcorr, noPulses1, noPulses2, 'Max. Cross Correlation [r]', ...
-        xtitle, ytitle, [0, 1], false);
+        xtitle, ytitle, [0, 1], showvalues);
     axis equal; xlim([0.5 noPulses2+0.5]); ylim([0.5 noPulses1+0.5]); box off; axis xy;
     figname = [filename, fname, '.png'];
     
@@ -214,16 +215,18 @@ close
 end
 disp('finished Marked plot')
 
-%% Combined Matrix Plot
-figure()
-combined_matrix_plot(MaxCorr_AP, 0.8)
-figname = [filename, '_CombinedMatrixPlot', '.png'];
-set(gcf, 'Color', 'white')
-if save_figs == 1
-    export_fig(figname,'-m2')
-    close
+%% Combined Matrix Plot (Only if active and passive pulse nr. is equal)
+if size(MaxCorr_AP, 1) == size(MaxCorr_AP, 2)
+    figure()
+    combined_matrix_plot(MaxCorr_AP, 0.8, showvalues)
+    figname = [filename, '_CombinedMatrixPlot', '.png'];
+    set(gcf, 'Color', 'white')
+    if save_figs == 1
+        export_fig(figname,'-m2')
+        close
+    end
+    disp('finished Combined Matrix Plot')
 end
-disp('finished Combined Matrix Plot')
 
 %% Save Data
 save([filename, '.mat'])

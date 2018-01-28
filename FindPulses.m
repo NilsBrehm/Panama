@@ -3,7 +3,7 @@
 % ToDo: 
 % - Filter Signal
 % - Improve Pulse detection (Template approach)
-% - Improve Pulse duration detection
+% - Improve Pulse duration detection (it is getting better ;D)
 
 % Copyright Nils Brehm 2018
 
@@ -54,7 +54,10 @@ d1 = data; % save raw data
 d1 = diff(d1);
 
 %% ========================================================================
-plot(data)
+% Filter Recording
+samplingrate = 480 * 1000;
+data_backup = data;
+data = bandpassfilter_data(data, 1000, 150*1000, 2, samplingrate);
 
 %% Sampling Rate Estimation
 recduration = 100; % in ms
@@ -70,7 +73,7 @@ if noise == 0
 end
 
 %% Noise filtering:
-noisefactor = 4;
+noisefactor = 3;
 d1 = data; % save raw data
 maxnoise = max(noise(:,2));
 minnoise = min(noise(:,2));
@@ -83,9 +86,9 @@ d1(d1<cutoff1 & d1>cutoff2) = 0;
 % Do you want to use noise filtered data?
 filternoise = 1;
 
-thresholdA = 1*std(data);
-thresholdP = 1.4*std(data);
-pulselength = 100; % in samples
+thresholdA = .8*std(data);
+thresholdP = .8*std(data);
+pulselength = 350; % in samples
 manualcorrection = 0;
 if filternoise == 1
     [Peak, samples] = findpulsesalgo(d1, thresholdA, thresholdP, pulselength, filternoise);
@@ -131,7 +134,10 @@ disp(['Total Pulses Found: ', num2str(length(Peak))])
 %% Detect Single Pulse Length
 singlepulselength = zeros(1, length(Peak));
 j = 1;
-limit_spl = quantile(data, .95);
+% limit_spl = quantile(data, .9);
+limit_spl = .3*std(data);
+% limit_spl = 2*maxnoise;
+
 
 for i = Peak
     k = 0;
@@ -174,6 +180,13 @@ call_stats = table(length(samples.active), mean(A_IPIs), std(A_IPIs), std(A_IPIs
     ITI, ITI2, pulse_train_duration, A_dur, P_dur, ...
     AP_length, AP_length_std, PP_length, PP_length_std ,'VariableNames', VarNames);
 
+% Plot marked pulses with their respective pulse length
+plot(data)
+hold on
+for p = 1:length(Peak)
+plot(Peak(p):Peak(p)+singlepulselength(p), data(Peak(p):Peak(p)+singlepulselength(p)), 'r')
+hold on
+end
 %% save samples and call statistics
 mkdir([path, file(1:end-4)]);
 filename = [path, file(1:end-4), '\', file(1:end-4)];

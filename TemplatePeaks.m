@@ -1,4 +1,4 @@
-function [pulse_locations, pulse_times, r, lags, template] = TemplatePeaks(data,samplingrate, pulse_length, frequency, tau, mph, mpd)
+function [pulse_locations, pulse_times, samples, r, lags, template] = TemplatePeaks(data,samplingrate, pulse_length, frequency, tau, mph, mpd, template)
 % The idea here ist to use a template pulse, eihter cuting out one of the
 % pulses in the recording or using a model template pulse (damped sinus),
 % to find the active and passive pulses in a recording. The template is
@@ -34,8 +34,9 @@ amp = round(max(data), 1);
 f = frequency*1000*2*pi; % 2*pi*Hz for pulse to have freq = Hz
 dumping = tau/1000; % tau in seconds (0.1 ms)
 xshift = 0; % no shift
+if template == 0
 template = artifical_moth(t,amp,f, dumping, xshift);
-
+end
 % =========================================================================
 % CROSS CORRELATION SECTION===============================================
 % Compute cross correlation between data and template pulse
@@ -54,25 +55,34 @@ template = artifical_moth(t,amp,f, dumping, xshift);
 % Get the starting point of pulses in sanmples
 pulse_locations = lags(locs);
 pulse_times = pulse_locations / samplingrate;
+samples.active = [];
+samples.passive = [];
 
-% Discriminating active and passive seems trickier than thought.
-% Any ideas?
-for i = 1:length(pulse_locations)
-%     aa = mean(data(pulse_locations(i):pulse_locations(i)+2));
-%     disp(aa)
-    
-    pp(i,:) = data(pulse_locations(i)-20:pulse_locations(i)+100);
-    [pksA, locsA] = findpeaks(pp(i,:), 'MinPeakHeight', 0.01);
-    [pksP, locsP] = findpeaks(-pp(i,:), 'MinPeakHeight', 0.01);
-    if locsA(1) > locsP(1)
-%         disp('P')
-    else
-%         disp('A')
+% Active or Passive?
+for k = 1:length(pulse_locations)
+    pulse = data(pulse_locations(k)-50:pulse_locations(k)+50);
+    for i = 1:length(pulse) 
+        if 2*std(pulse(1:i+10)) > std(pulse(i+10:end))
+            peak = i;
+            break;
+        end
     end
-%     plot(data(pulse_locations(i)-20:pulse_locations(i)+100))
-%     pause(1)
+    if mean(pulse(peak:peak+2)) > 0
+        samples.active = [samples.active, pulse_locations(k)];
+    else
+        samples.passive = [samples.passive, pulse_locations(k)];
+    end
 end
-a = 1;
+% pulsepeak = 10;
+% y = pulse(1:pulsepeak);
+% x = 1:length(y);
+% P = polyfit(x',y,1);
+% yfit = P(1)*x+P(2);
+% plot(x,yfit);hold on;plot(y)
+
+
+
+
 
 % % Difference beteween new and old method
 % % Template Method aligns at start of pulse not at first peak!

@@ -1,4 +1,4 @@
-function combined_matrix_plot(MaxCorr_AP, threshold)
+function combined_matrix_plot(MaxCorr_AP, threshold, showvalues)
 % This function plots a matrix plot with the diagonal highlighted (red line
 % with diamonds). Max. Cross Correlation values are marked (blue circles) 
 % and a range defined by 'threshold' is indicated (x--x). This function
@@ -25,7 +25,7 @@ diag = 1:noPulses;
 diagAP = noPulses:-1:1;
 matrix_plot(MaxCorr_AP, noPulses, noPulses,...
     'Best Cross Correlation [r]','Passive Pulse Number', 'Active Pulse Number',...
-    [0, 1]); axis equal; xlim([0.5 noPulses+0.5]); box off; axis xy;
+    [0, 1], showvalues); axis equal; xlim([0.5 noPulses+0.5]); box off; axis xy;
 hold on
 for k = 1:noPulses
     plot(ca{k},ones(size(ca{k},2))*k, '--xk', 'MarkerSize',12, 'LineWidth',2)

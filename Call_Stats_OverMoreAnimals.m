@@ -21,7 +21,7 @@ for i = 1:length(animals)
     data{i} = load([animal_path, 'call_statistics.mat']);
 end
 
-%% BoxPlot IPI
+%% Collect Data
 IPI_A = []; IPI_P = []; pl_A = []; pl_P = []; AT_dur = []; PT_dur = [];
 ITI = []; call_dur = [];
 group_IPI_A = []; group_IPI_P = []; group_pl_A = []; group_pl_P = [];

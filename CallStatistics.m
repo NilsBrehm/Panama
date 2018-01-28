@@ -27,8 +27,8 @@
 %% Get number of calls in directory
 clear
 clc
-animal = 'D:\Masterarbeit\PanamaProject\DataForPaper\Castur\PK1289\';
-rec_nr = 2;
+animal = 'D:\Masterarbeit\PanamaProject\DataForPaper\Castur\PK1285\';
+rec_nr = 7;
 disp(['number of recordings: ', num2str(rec_nr)])
 d = dir(animal);
 dirFlags = [d.isdir];
@@ -38,11 +38,6 @@ recordings = recordings(3:(2+rec_nr));
 
 %% Collect data from saved data
 tic
-IPI_A = [];
-IPI_P = [];
-call_duration = [];
-pl_A = [];
-pl_P = [];
 call_stats = {};
 q = 1;
 
@@ -59,9 +54,11 @@ for k = 1:length(recordings)
         load(filename,'data', 'samples', 'samplingrate', 'singlepulselength');
         
         % Compute Call Statistics
+%         f = figure();
         call_stats(q, :) = compute_call_statistics(data,...
-            samples, samplingrate, singlepulselength, true);
+            samples, samplingrate, singlepulselength, true, false);
         q = q+1;
+%         waitfor(f); % Wait until figure is closed
         
 %         % Inter Pulse Intervals
 %         IPI_A = [IPI_A, A_IPIs];

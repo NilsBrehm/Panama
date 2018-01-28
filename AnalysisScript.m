@@ -4,10 +4,10 @@
 disp(['min. pulse length: ', num2str(min(singlepulselength)), ' samples'])
 pulsewindowstart = -10;
 % pulsewindowend = round(median(singlepulselength))-20;
-pulsewindowend = round(min(singlepulselength))+80;
+pulsewindowend = round(min(singlepulselength))-80;
 windowstart = 1;
 % windowend = round(median(singlepulselength))-20;
-windowend = round(min(singlepulselength))+80;
+windowend = round(min(singlepulselength))-80;
 baseline = 5;
 % !!! SET CORRECT SAMPLING RATE !!! --------------------------------------
 samplingrate = 480 * 1000;
@@ -44,6 +44,11 @@ export_fig(figname,'-m2')
 [ccAA, MaxCorr_AA, BestLag_AA] = crosscorr(pulses.active, pulses.active, windowstart, windowend, 'coeff');
 [ccPP, MaxCorr_PP, BestLag_PP] = crosscorr(pulses.passive, pulses.passive, windowstart, windowend, 'coeff');
 
+% Shifted MSE
+[minMSE_AP, shift_AP] = shifted_MSE(pulses.active, -pulses.passive, windowstart, windowend);
+[minMSE_AA, shift_AA] = shifted_MSE(pulses.active, pulses.active, windowstart, windowend);
+[minMSE_PP, shift_PP] = shifted_MSE(pulses.passive, pulses.passive, windowstart, windowend);
+
 % %not normalized:
 % [ccAP, MaxCorr_AP, BestLag_AP] = crosscorr(pulses.active, pulses.passive, windowstart, windowend, 'unbiased');
 % [ccAA, MaxCorr_AA, BestLag_AA] = crosscorr(pulses.active, pulses.active, windowstart, windowend, 'unbiased');
@@ -63,11 +68,6 @@ disp('Analysis done and data saved')
 
 %% ========================================================================
 %  ========================================================================
-%% Shifted MSE
-[minMSE_AP, shift_AP] = shifted_MSE(pulses.active, -pulses.passive, windowstart, windowend);
-[minMSE_AA, shift_AA] = shifted_MSE(pulses.active, pulses.active, windowstart, windowend);
-[minMSE_PP, shift_PP] = shifted_MSE(pulses.passive, pulses.passive, windowstart, windowend);
-
 %[minMSE_FIT_raw, shift_FIT_raw] = shifted_MSE(FIT_a, FIT_p, 1, length(FIT_a));
 %% PLOT MSE
 imagesc(minMSE_AP);axis xy; 
