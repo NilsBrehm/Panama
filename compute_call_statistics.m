@@ -28,6 +28,8 @@ function call_stats = compute_call_statistics(data, samples, samplingrate, singl
 % 09: Call Duration
 % 10: Active Train Duration
 % 11: Passive Train Duration
+% 12: Active Pulse Number
+% 13: Passive Pulse Number
 %
 % Copyright Nils Brehm 2018
 
@@ -65,11 +67,13 @@ ITI = max(IPIs);  % Inter Train Interval: Interval between Active and Passive Tr
 pulse_train_duration = (max([samples.passive, samples.active]) - min([samples.passive, samples.active]))/samplingrate*1000;
 A_dur = (max(samples.active) - min(samples.active)) / samplingrate * 1000;
 P_dur = (max(samples.passive) - min(samples.passive)) / samplingrate * 1000;
+A_number = length(samples.active);
+P_number = length(samples.passive);
 
 %               1   2       3      4      5       6     7     8
 call_stats = {spl, spl_A, spl_P, IPIs, A_IPIs, P_IPIs, ITI, ITI2,...
-    pulse_train_duration, A_dur, P_dur};
-%           9               10     11
+    pulse_train_duration, A_dur, P_dur, A_number, P_number};
+%           9               10     11       12      13
 
 % Plot marked pulses with their respective pulse length
 if please_plot

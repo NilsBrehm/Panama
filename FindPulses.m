@@ -13,7 +13,7 @@ clc
 close all
 
 path_linux = '/media/brehm/Data/Panama/DataForPaper/';
-path_windows = 'D:\Masterarbeit\PanamaProject\DataForPaper\Melese_incertus\';
+path_windows = 'D:\Masterarbeit\PanamaProject\DataForPaper\';
 
 [file,path] = uigetfile([path_windows, '*.wav'],'select a wav file');
 open(fullfile(path,file))

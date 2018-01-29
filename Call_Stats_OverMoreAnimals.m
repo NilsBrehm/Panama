@@ -23,21 +23,26 @@ end
 
 %% Collect Data
 IPI_A = []; IPI_P = []; pl_A = []; pl_P = []; AT_dur = []; PT_dur = [];
-ITI = []; call_dur = [];
+ITI = []; call_dur = []; A_number = []; P_number = [];
 group_IPI_A = []; group_IPI_P = []; group_pl_A = []; group_pl_P = [];
 group_AT_dur = []; group_PT_dur = [];
+group_A_number = []; group_P_number = [];
 n_IPI_A = zeros(1, length(animals));
 n_IPI_P = zeros(1, length(animals));
 n_pl_A = zeros(1, length(animals));
 n_pl_P = zeros(1, length(animals));
 n_AT_dur = zeros(1, length(animals));
 n_PT_dur = zeros(1, length(animals));
+n_A_number = zeros(1, length(animals));
+n_P_number = zeros(1, length(animals));
 legend_label_IPI_A = cell(1, length(animals));
 legend_label_IPI_P = cell(1, length(animals));
 legend_label_pl_A = cell(1, length(animals));
 legend_label_pl_P = cell(1, length(animals));
 legend_label_AT_dur = cell(1, length(animals));
 legend_label_PT_dur = cell(1, length(animals));
+legend_label_A_number = cell(1, length(animals));
+legend_label_P_number = cell(1, length(animals));
 
 for k = 1:length(animals)
     
@@ -48,6 +53,8 @@ for k = 1:length(animals)
     n_pl_P(k) = (length(d.pl_P));
     n_AT_dur(k) = (length(d.AT_duration));
     n_PT_dur(k) = (length(d.PT_duration));
+    n_A_number(k) = (length(d.A_number));
+    n_P_number(k) = (length(d.P_number));
     
     IPI_A_median(k) = median(d.IPI_A);
     IPI_P_median(k) = median(d.IPI_P);
@@ -57,6 +64,8 @@ for k = 1:length(animals)
     PT_dur_median(k) = median(d.PT_duration);
     ITI_median(k) = median(cell2mat(d.call_stats(:,7)));
     call_dur_median(k) = median(d.call_duration);
+    A_number_median(k) = median(d.A_number);
+    P_number_median(k) = median(d.P_number);
     
     IPI_A = [IPI_A, d.IPI_A];
     IPI_P = [IPI_P, d.IPI_P];
@@ -66,6 +75,8 @@ for k = 1:length(animals)
     PT_dur = [PT_dur, d.PT_duration];
     ITI = [ITI,  cell2mat(d.call_stats(:,7))'];
     call_dur = [call_dur, d.call_duration];
+    A_number = [A_number, d.A_number];
+    P_number = [P_number, d.P_number];
     
     group_IPI_A = [group_IPI_A, ones(1, n_IPI_A(k))*k];
     group_IPI_P = [group_IPI_P, ones(1, n_IPI_P(k))*k];
@@ -73,6 +84,8 @@ for k = 1:length(animals)
     group_pl_P = [group_pl_P, ones(1, n_pl_P(k))*k];
     group_AT_dur = [group_AT_dur, ones(1, n_AT_dur(k))*k];
     group_PT_dur = [group_PT_dur, ones(1, n_PT_dur(k))*k];
+    group_A_number = [group_A_number, ones(1, n_A_number(k))*k];
+    group_P_number = [group_P_number, ones(1, n_P_number(k))*k];
     
     legend_label_IPI_A{k} = [animals{k}, ' (n=', num2str(n_IPI_A(k)), ')'];
     legend_label_IPI_P{k} = [animals{k}, ' (n=', num2str(n_IPI_P(k)), ')'];
@@ -80,6 +93,8 @@ for k = 1:length(animals)
     legend_label_pl_P{k} = [animals{k}, ' (n=', num2str(n_pl_P(k)), ')'];
     legend_label_AT_dur{k} = [animals{k}, ' (n=', num2str(n_AT_dur(k)), ')'];
     legend_label_PT_dur{k} = [animals{k}, ' (n=', num2str(n_PT_dur(k)), ')'];
+    legend_label_A_number{k} = [animals{k}, ' (n=', num2str(n_A_number(k)), ')'];
+    legend_label_P_number{k} = [animals{k}, ' (n=', num2str(n_P_number(k)), ')'];
     
     
 end
@@ -90,6 +105,8 @@ group_call_dur = group_AT_dur;
 legend_label_ITI = legend_label_AT_dur;
 legend_label_call_dur = legend_label_AT_dur;
 
+%% Save to HDD
+save([pathname, 'call_statistics.mat'])
 % -------------------------------------------------------------------------
 %% PLOTTING SECTION
 % -----------------
@@ -212,3 +229,45 @@ text(3.3, call_dur_median(3), num2str(round(call_dur_median(3),2)), 'FontSize', 
 export_fig([pathname, 'call_dur.png'], '-r300', '-q101')
 close
 
+%% Box Plot Active Pulse Number
+pos_fig = [100 100 1000 600];
+figure()
+set(gcf, 'Color', 'white', 'position', pos_fig)
+labely = 'Active Pulse Number';
+plot_boxplot(A_number, group_A_number, legend_label_A_number, [0, 30], labely)
+ylim([0 inf])
+title('Active Pulse Number')
+text(1.3, A_number_median(1), num2str(round(A_number_median(1),2)), 'FontSize', 14, 'Color', 'k')
+text(2.3, A_number_median(2), num2str(round(A_number_median(2),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, A_number_median(3), num2str(round(A_number_median(3),2)), 'FontSize', 14, 'Color', 'k')
+
+export_fig([pathname, 'A_number.png'], '-r300', '-q101')
+close
+
+%% Box Plot Passive Pulse Number
+pos_fig = [100 100 1000 600];
+figure()
+set(gcf, 'Color', 'white', 'position', pos_fig)
+labely = 'Passive Pulse Number';
+plot_boxplot(P_number, group_P_number, legend_label_P_number, [0, 30], labely)
+ylim([0 inf])
+title('Passive Pulse Number')
+text(1.3, P_number_median(1), num2str(round(P_number_median(1),2)), 'FontSize', 14, 'Color', 'k')
+text(2.3, P_number_median(2), num2str(round(P_number_median(2),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, P_number_median(3), num2str(round(P_number_median(3),2)), 'FontSize', 14, 'Color', 'k')
+
+export_fig([pathname, 'P_number.png'], '-r300', '-q101')
+close
+
+%% Histogram: Active and Passive Pulse Number
+histogram(A_number)
+hold on
+histogram(P_number)
+
+%% Relation between Active Pulse Number and Passive Pulse Number
+dd = A_number - P_number;
+histogram(dd)
+
+%% Pulse Number of calls where active number equals passive number
+pulse_number = A_number(A_number-P_number == 0);
+histogram(pulse_number)

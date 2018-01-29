@@ -21,14 +21,16 @@
 % 09: Call Duration
 % 10: Active Train Duration
 % 11: Passive Train Duration
+% 12: Active Pulse Number
+% 13: Passive Pulse Number
 % 
 % Copyright Nils Brehm 2018
 
 %% Get number of calls in directory
 clear
 clc
-animal = 'D:\Masterarbeit\PanamaProject\DataForPaper\Castur\PK1285\';
-rec_nr = 7;
+animal = 'D:\Masterarbeit\PanamaProject\DataForPaper\Castur\PK1289\';
+rec_nr = 2;
 disp(['number of recordings: ', num2str(rec_nr)])
 d = dir(animal);
 dirFlags = [d.isdir];
@@ -60,34 +62,14 @@ for k = 1:length(recordings)
         q = q+1;
 %         waitfor(f); % Wait until figure is closed
         
-%         % Inter Pulse Intervals
-%         IPI_A = [IPI_A, A_IPIs];
-%         IPI_P = [IPI_P, P_IPIs];
-%         
-%         % Call Duration
-%         pulse_train_duration = (max([samples.passive, samples.active]) - min([samples.passive, samples.active]))/samplingrate*1000;
-%         call_duration = [call_duration, pulse_train_duration];
-%         
-%         % Pulse Duration
-%         spl = singlepulselength / samplingrate * 1000;
-%         spl_A = spl(1:length(samples.active));
-%         spl_P = spl(length(samples.active)+1:end);
-%         pl_A = [pl_A, spl_A];
-%         pl_P = [pl_P, spl_P];
-        
-%         if sum(spl > 2)
-%             disp(['Look at: ',recordings{k} , ' - call nr  ', num2str(i)])
-%         end
     end
     disp([num2str(k/length(recordings)*100), ' % done'])
 end
 toc
 
-
-
 %%
 IPI_A = []; IPI_P = []; pl_A = []; pl_P = []; call_duration = [];
-AT_duration = []; PT_duration = [];
+AT_duration = []; PT_duration = []; A_number = []; P_number = [];
 
 for i = 1:size(call_stats, 1)
     IPI_A = [IPI_A, call_stats{i, 5}];
@@ -97,6 +79,8 @@ for i = 1:size(call_stats, 1)
     call_duration = [call_duration, call_stats{i, 9}];
     AT_duration = [AT_duration, call_stats{i, 10}];
     PT_duration = [PT_duration, call_stats{i, 11}];
+    A_number = [A_number, call_stats{i, 12}];
+    P_number = [P_number, call_stats{i, 13}];
 end
 
 %% Save Call Stats to HDD
