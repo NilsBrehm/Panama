@@ -29,8 +29,8 @@
 %% Get number of calls in directory
 clear
 clc
-animal = 'D:\Masterarbeit\PanamaProject\DataForPaper\Castur\PK1289\';
-rec_nr = 2;
+animal = '/media/brehm/Data/Panama/DataForPaper/Melese_incertus/PK1299/';
+rec_nr = 1;
 disp(['number of recordings: ', num2str(rec_nr)])
 d = dir(animal);
 dirFlags = [d.isdir];
@@ -44,7 +44,7 @@ call_stats = {};
 q = 1;
 
 for k = 1:length(recordings)
-    pathname = [animal, recordings{k}, '\'];
+    pathname = [animal, recordings{k}, '/'];
     d = dir(pathname);
     dirFlags = [d.isdir];
     folders = d(dirFlags);
@@ -52,7 +52,7 @@ for k = 1:length(recordings)
     
     % Loop through all calls
     for i = 1:number_of_calls
-        filename = [pathname, 'call_nr_', num2str(i), '\call_nr_', num2str(i), '.mat'];
+        filename = [pathname, 'call_nr_', num2str(i), '/call_nr_', num2str(i), '.mat'];
         load(filename,'data', 'samples', 'samplingrate', 'singlepulselength');
         
         % Compute Call Statistics
