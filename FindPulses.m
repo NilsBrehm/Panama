@@ -12,10 +12,10 @@ clear
 clc
 close all
 
-path_linux = '/media/brehm/Data/Panama/DataForPaper/';
+path_linux = '/media/brehm/Data/Panama/DataForPaper/Melese_incertus/Pk12990020/';
 path_windows = 'D:\Masterarbeit\PanamaProject\DataForPaper\';
 
-[file,path] = uigetfile([path_windows, '*.wav'],'select a wav file');
+[file,path] = uigetfile([path_linux, '*.wav'],'select a wav file');
 open(fullfile(path,file))
 
 %% Use this to change the path:
@@ -73,7 +73,7 @@ if noise == 0
 end
 
 %% Noise filtering:
-noisefactor = 3;
+noisefactor = 4;
 d1 = data; % save raw data
 maxnoise = max(noise(:,2));
 minnoise = min(noise(:,2));
@@ -84,11 +84,11 @@ d1(d1<cutoff1 & d1>cutoff2) = 0;
 
 %% Find Pulses
 % Do you want to use noise filtered data?
-filternoise = 1;
+filternoise = 0;
 
-thresholdA = .8*std(data);
-thresholdP = .8*std(data);
-pulselength = 350; % in samples
+thresholdA = 1*std(data);
+thresholdP = .7*std(data);
+pulselength = 150; % in samples
 manualcorrection = 0;
 if filternoise == 1
     [Peak, samples] = findpulsesalgo(d1, thresholdA, thresholdP, pulselength, filternoise);
@@ -100,6 +100,8 @@ end
 %% Plot pulses found
 % a2.DataIndex-a1.DataIndex
 clc
+markings_A = zeros(2, length(samples.active));
+markings_P = zeros(2, length(samples.passive));
 if filternoise == 1
     plot(d1, 'm', 'linewidth', 1.5)
 else
@@ -107,14 +109,21 @@ else
 end
 hold on
 for j = 1:length(samples.active)
-    plot(samples.active(j), data(samples.active(j)), 'ro', 'MarkerSize', 8)
-    hold on
+%     plot(samples.active(j), data(samples.active(j)), 'ro', 'MarkerSize', 8)
+%     hold on    
+    markings_A(1,j) = samples.active(j);
+    markings_A(2,j) = data(samples.active(j));
 end
+plot(markings_A(1,:), markings_A(2,:), 'ro', 'MarkerSize', 8)
 for j = 1:length(samples.passive)
-    plot(samples.passive(j), data(samples.passive(j)), 'bo', 'MarkerSize', 8)
-    hold on
+%     plot(samples.passive(j), data(samples.passive(j)), 'bo', 'MarkerSize', 8)
+%     hold on
+    markings_P(1,j) = samples.passive(j);
+    markings_P(2,j) = data(samples.passive(j));
 end
-
+hold on
+plot(markings_P(1,:), markings_P(2,:), 'bo', 'MarkerSize', 8)
+hold on
 plot([1, length(data)], [thresholdA, thresholdA], 'g')
 hold on
 plot([1, length(data)], [-thresholdP, -thresholdP], 'g')
@@ -187,11 +196,12 @@ for p = 1:length(Peak)
 plot(Peak(p):Peak(p)+singlepulselength(p), data(Peak(p):Peak(p)+singlepulselength(p)), 'r')
 hold on
 end
+
 %% save samples and call statistics
 mkdir([path, file(1:end-4)]);
-filename = [path, file(1:end-4), '\', file(1:end-4)];
+filename = [path, file(1:end-4), '/', file(1:end-4)];
 save([filename, '_samples.mat'],'samples')
-writetable(call_stats, [path, file(1:end-4), '\call_stats.xls'])
+writetable(call_stats, [path, file(1:end-4), '/call_stats.xls'])
 disp('Call Statistics saved!')
 
 
@@ -201,44 +211,58 @@ disp('Call Statistics saved!')
 %% ========================================================================
 %  ========================================================================
 %% Add pulse manually
+% Remove Pulses
+samples.active = marks_A(:,1)';
+samples.passive = marks_P(:,1)';
+disp('Pulses have been removed')
+
 % Active
-addactivepulse = addactivepulse.DataIndex;
-id1 = max(find(samples.active < addactivepulse));
-if isempty(id1) % This means new pulse is the new first pulse
-    newsamples = addactivepulse;
-    newsamples(end+1:length(samples.active)+1) = samples.active;
-else
-    newsamples = samples.active(1:id1);
-    newsamples(end+1) = addactivepulse;
-    newsamples(end+1:end+length(samples.active(id1+1:end))) = samples.active(id1+1:end);
+for a = 1:length(aa)
+    addactivepulse = aa(a).DataIndex;
+    id1 = max(find(samples.active < addactivepulse));
+    if isempty(id1) % This means new pulse is the new first pulse
+        newsamples = addactivepulse;
+        newsamples(end+1:length(samples.active)+1) = samples.active;
+    else
+        newsamples = samples.active(1:id1);
+        newsamples(end+1) = addactivepulse;
+        newsamples(end+1:end+length(samples.active(id1+1:end))) = samples.active(id1+1:end);
+    end
+    samples.active = newsamples;
+    Peak = [samples.active, samples.passive]; % Rebuild Peak
 end
+disp(['added ', num2str(a) ,' active pulses'])
 
-samples.active = newsamples;
-
-%% Passive
-addpassivepulse = addpassivepulse.DataIndex;
-id1 = max(find(samples.passive < addpassivepulse));
-
-if isempty(id1) % This means new pulse is the new first pulse
-    newsamples = addpassivepulse;
-    newsamples(end+1:length(samples.passive)+1) = samples.passive;
-else
-    newsamples = samples.passive(1:id1);
-    newsamples(end+1) = addpassivepulse;
-    newsamples(end+1:end+length(samples.passive(id1+1:end))) = samples.passive(id1+1:end);
+% Passive
+for p = 1:length(pp)
+    addpassivepulse = pp(p).DataIndex;
+    id1 = max(find(samples.passive < addpassivepulse));
+    
+    if isempty(id1) % This means new pulse is the new first pulse
+        newsamples = addpassivepulse;
+        newsamples(end+1:length(samples.passive)+1) = samples.passive;
+    else
+        newsamples = samples.passive(1:id1);
+        newsamples(end+1) = addpassivepulse;
+        newsamples(end+1:end+length(samples.passive(id1+1:end))) = samples.passive(id1+1:end);
+    end
+    samples.passive = newsamples;
+    Peak = [samples.active, samples.passive]; % Rebuild Peak
 end
-samples.passive = newsamples;
+disp(['added ', num2str(p) ,' passive pulses'])
 
 %% Remove pulses
 % active
-nr_a = 14;
+nr_a = 9;
 samples.active(nr_a) = [];
 Peak = [samples.active, samples.passive]; % Rebuild Peak
 
 %% passive
-nr_p = 8;
+nr_p = 7;
 samples.passive(nr_p) = [];
 Peak = [samples.active, samples.passive]; % Rebuild Peak
+
+
 
 %%
 % -----------------------------------------------------------------------

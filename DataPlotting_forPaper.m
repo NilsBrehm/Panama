@@ -18,7 +18,7 @@
 
 %% Plotting Parameters
 clc
-filename = [path, file(1:end-4), '\'];
+filename = [path, file(1:end-4), '/'];
 toomanypulses = 0;
 showvalues = true;
 callseries = 0;
@@ -30,8 +30,8 @@ else
 end
 
 % Load colormap
-% load('/media/brehm/Data/Panama/code/Panama/selena_colormap.mat')
-load('D:\Masterarbeit\PanamaProject\Panama\selena_colormap.mat')
+load('/media/brehm/Data/Panama/code/Panama/selena_colormap.mat')
+%load('D:\Masterarbeit\PanamaProject\Panama\selena_colormap.mat')
 
 % Set Font:
 fontfamlily = 'Times';
@@ -117,7 +117,7 @@ ylabel('Amplitude', 'fontsize', 10, 'FontName', fontfamlily)
 box off
 colorbar('Visible','off')
 
-figname = [filename, '/Spectrogram', '.png'];
+figname = [filename, 'Spectrogram', '.png'];
 set(gcf, 'Color', 'white')
 if save_figs == 1
 export_fig(figname,'-m2')
@@ -156,7 +156,7 @@ for i = 1:noPulsesA
         xlabel('Time [ms]', 'fontsize', 12, 'FontName', fontfamlily)
     end
 end
-figname = [filename, '_Apulses', '.png'];
+figname = [filename, 'Apulses', '.png'];
 if save_figs == 1
 export_fig(figname,'-m2')
 close
@@ -187,7 +187,7 @@ for i = 1:noPulsesP
     end
 end
 
-figname = [filename, '_Ppulses', '.png'];
+figname = [filename, 'Ppulses', '.png'];
 if save_figs == 1
 export_fig(figname,'-m2')
 close
@@ -207,7 +207,7 @@ for i = 1:noPulsesP
     plot(time(samples.passive(i):samples.passive(i)+100), data(samples.passive(i):samples.passive(i)+100), 'b')
 end
 
-figname = [filename, '_MarkedPulses', '.png'];
+figname = [filename, 'MarkedPulses', '.png'];
 set(gcf, 'Color', 'white')
 if save_figs == 1
 export_fig(figname,'-m2')
@@ -219,7 +219,7 @@ disp('finished Marked plot')
 if size(MaxCorr_AP, 1) == size(MaxCorr_AP, 2)
     figure()
     combined_matrix_plot(MaxCorr_AP, 0.8, showvalues)
-    figname = [filename, '_CombinedMatrixPlot', '.png'];
+    figname = [filename, 'CombinedMatrixPlot', '.png'];
     set(gcf, 'Color', 'white')
     if save_figs == 1
         export_fig(figname,'-m2')
@@ -229,5 +229,5 @@ if size(MaxCorr_AP, 1) == size(MaxCorr_AP, 2)
 end
 
 %% Save Data
-save([filename, '.mat'])
+save([filename, file(1:end-4), '.mat'])
 disp('Plotting done and data saved')
