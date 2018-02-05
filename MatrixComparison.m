@@ -3,7 +3,7 @@ m = [];
 path_linux = '/media/brehm/Data/Panama/DataForPaper/Castur/PK1285/sorted/';
 path_windows = 'D:\Masterarbeit\PanamaProject\DataForPaper\';
 
-[file,path] = uigetfile([path_linux, '*.mat'],'select a wav file');
+[file,path] = uigetfile([path_windows, '*.mat'],'select a wav file');
 % open(fullfile(path,file))
 %%
 m = [m, load([path, file], 'MaxCorr_AP')];
@@ -28,13 +28,13 @@ nf4 = norm(m(4).MaxCorr_AP,'fro');
 
 %%
 figname = 'Melese';
-MM = fliplr(m(3).MaxCorr_AP);
+MM = fliplr(m(2).MaxCorr_AP);
 noPulses = length(MM)-1;
 k = 0;
 d = zeros(1,2*noPulses+1);
 
 
-pos_fig = [500 500  400 800];
+pos_fig = [200 200  400 800];
 fig = figure();
 set(fig, 'Color', 'white', 'position', pos_fig)
 subplot(2,1,1)
@@ -105,3 +105,30 @@ edges = 0:bin_width:1;
 histogram(d, edges)
 hold on
 histogram(uni, edges)
+
+%% Resampling
+clc
+nresamples = 100000;
+resample = zeros(nresamples, length(d));
+for i = 1:nresamples
+    idx = randi(length(d), 1, length(d));
+    resample(i,:) = d(idx);
+end
+
+% Bootstrapped Percentile 95
+per95 = prctile(resample(:), 95);
+disp(['per95: ', num2str(per95)])
+disp(['max of d: ', num2str(max(d))])
+if max(d) > per95
+    disp(1)
+else
+    disp(0)
+end
+
+%%
+range = [mean(d)+2*std(d), mean(d)-2*std(d)];
+if max(d) > range(1) || max(d) < range(2) 
+    disp(1)
+else
+    disp(0)
+end
