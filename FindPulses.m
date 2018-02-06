@@ -87,7 +87,7 @@ d1(d1<cutoff1 & d1>cutoff2) = 0;
 filternoise = 0;
 
 thresholdA = 1*std(data);
-thresholdP = 10*std(data);
+thresholdP = 1*std(data);
 pulselength = 300; % in samples
 manualcorrection = 0;
 if filternoise == 1
