@@ -13,8 +13,8 @@
 %% Load Data
 clear
 clc
-pathname = '/media/brehm/Data/Panama/DataForPaper/Melese_incertus/';
-animals = {'PK1297', 'PK1299'};
+pathname = '/media/brehm/Data/Panama/DataForPaper/Castur/';
+animals = {'PK1285', 'PK1287', 'PK1289'};
 
 for i = 1:length(animals)
     animal_path = [pathname, animals{i}, '/'];
@@ -120,7 +120,7 @@ ylim([0 inf])
 title('Active Interpulse Intervals')
 text(1.3, IPI_A_median(1), num2str(round(IPI_A_median(1),2)), 'FontSize', 14, 'Color', 'k')
 text(2.3, IPI_A_median(2), num2str(round(IPI_A_median(2),2)), 'FontSize', 14, 'Color', 'k')
-% text(3.3, IPI_A_median(3), num2str(round(IPI_A_median(3),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, IPI_A_median(3), num2str(round(IPI_A_median(3),2)), 'FontSize', 14, 'Color', 'k')
 
 export_fig([pathname, 'A_IPI.png'], '-r300', '-q101')
 close
@@ -134,7 +134,7 @@ ylim([0 inf])
 title('Passive Interpulse Intervals')
 text(1.3, IPI_P_median(1), num2str(round(IPI_P_median(1),2)), 'FontSize', 14, 'Color', 'k')
 text(2.3, IPI_P_median(2), num2str(round(IPI_P_median(2),2)), 'FontSize', 14, 'Color', 'k')
-% text(3.3, IPI_P_median(3), num2str(round(IPI_P_median(3),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, IPI_P_median(3), num2str(round(IPI_P_median(3),2)), 'FontSize', 14, 'Color', 'k')
 
 export_fig([pathname, 'P_IPI.png'], '-r300', '-q101')
 close
@@ -149,7 +149,7 @@ yticks(0:.5:5)
 title('Acive Pulse Duration')
 text(1.3, pl_A_median(1), num2str(round(pl_A_median(1),2)), 'FontSize', 14, 'Color', 'k')
 text(2.3, pl_A_median(2), num2str(round(pl_A_median(2),2)), 'FontSize', 14, 'Color', 'k')
-% text(3.3, pl_A_median(3), num2str(round(pl_A_median(3),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, pl_A_median(3), num2str(round(pl_A_median(3),2)), 'FontSize', 14, 'Color', 'k')
 
 export_fig([pathname, 'A_PDur.png'], '-r300', '-q101')
 close
@@ -164,7 +164,7 @@ yticks(0:.5:5)
 title('Passive Pulse Duration')
 text(1.3, pl_P_median(1), num2str(round(pl_P_median(1),2)), 'FontSize', 14, 'Color', 'k')
 text(2.3, pl_P_median(2), num2str(round(pl_P_median(2),2)), 'FontSize', 14, 'Color', 'k')
-% text(3.3, pl_P_median(3), num2str(round(pl_P_median(3),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, pl_P_median(3), num2str(round(pl_P_median(3),2)), 'FontSize', 14, 'Color', 'k')
 
 export_fig([pathname, 'P_PDur.png'], '-r300', '-q101')
 close
@@ -179,7 +179,7 @@ yticks(0:20:100)
 title('Active Train Duration')
 text(1.3, AT_dur_median(1), num2str(round(AT_dur_median(1),2)), 'FontSize', 14, 'Color', 'k')
 text(2.3, AT_dur_median(2), num2str(round(AT_dur_median(2),2)), 'FontSize', 14, 'Color', 'k')
-% text(3.3, AT_dur_median(3), num2str(round(AT_dur_median(3),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, AT_dur_median(3), num2str(round(AT_dur_median(3),2)), 'FontSize', 14, 'Color', 'k')
 
 export_fig([pathname, 'A_TrainDur.png'], '-r300', '-q101')
 close
@@ -194,7 +194,7 @@ yticks(0:20:500)
 title('Passive Train Duration')
 text(1.3, PT_dur_median(1), num2str(round(PT_dur_median(1),2)), 'FontSize', 14, 'Color', 'k')
 text(2.3, PT_dur_median(2), num2str(round(PT_dur_median(2),2)), 'FontSize', 14, 'Color', 'k')
-% text(3.3, PT_dur_median(3), num2str(round(PT_dur_median(3),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, PT_dur_median(3), num2str(round(PT_dur_median(3),2)), 'FontSize', 14, 'Color', 'k')
 
 export_fig([pathname, 'P_TrainDur.png'], '-r300', '-q101')
 close
@@ -209,7 +209,7 @@ yticks(0:20:250)
 title('Intertrain Interval')
 text(1.3, ITI_median(1), num2str(round(ITI_median(1),2)), 'FontSize', 14, 'Color', 'k')
 text(2.3, ITI_median(2), num2str(round(ITI_median(2),2)), 'FontSize', 14, 'Color', 'k')
-% text(3.3, ITI_median(3), num2str(round(ITI_median(3),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, ITI_median(3), num2str(round(ITI_median(3),2)), 'FontSize', 14, 'Color', 'k')
 
 export_fig([pathname, 'ITI.png'], '-r300', '-q101')
 close
@@ -224,7 +224,7 @@ yticks(0:50:500)
 title('Call Duration')
 text(1.3, call_dur_median(1), num2str(round(call_dur_median(1),2)), 'FontSize', 14, 'Color', 'k')
 text(2.3, call_dur_median(2), num2str(round(call_dur_median(2),2)), 'FontSize', 14, 'Color', 'k')
-% text(3.3, call_dur_median(3), num2str(round(call_dur_median(3),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, call_dur_median(3), num2str(round(call_dur_median(3),2)), 'FontSize', 14, 'Color', 'k')
 
 export_fig([pathname, 'call_dur.png'], '-r300', '-q101')
 close
@@ -239,7 +239,7 @@ ylim([0 inf])
 title('Active Pulse Number')
 text(1.3, A_number_median(1), num2str(round(A_number_median(1),2)), 'FontSize', 14, 'Color', 'k')
 text(2.3, A_number_median(2), num2str(round(A_number_median(2),2)), 'FontSize', 14, 'Color', 'k')
-% text(3.3, A_number_median(3), num2str(round(A_number_median(3),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, A_number_median(3), num2str(round(A_number_median(3),2)), 'FontSize', 14, 'Color', 'k')
 
 export_fig([pathname, 'A_number.png'], '-r300', '-q101')
 close
@@ -254,10 +254,15 @@ ylim([0 inf])
 title('Passive Pulse Number')
 text(1.3, P_number_median(1), num2str(round(P_number_median(1),2)), 'FontSize', 14, 'Color', 'k')
 text(2.3, P_number_median(2), num2str(round(P_number_median(2),2)), 'FontSize', 14, 'Color', 'k')
-% text(3.3, P_number_median(3), num2str(round(P_number_median(3),2)), 'FontSize', 14, 'Color', 'k')
+text(3.3, P_number_median(3), num2str(round(P_number_median(3),2)), 'FontSize', 14, 'Color', 'k')
 
 export_fig([pathname, 'P_number.png'], '-r300', '-q101')
 close
+
+%% ------------------------------------------------------------------------
+species = 'Castur';
+pp = '/media/brehm/Data/Panama/DataForPaper/';
+load([pp, species, '/call_statistics.mat'])
 
 %% Histogram: Active and Passive Pulse Number
 histogram(A_number)

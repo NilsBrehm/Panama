@@ -29,8 +29,8 @@
 %% Get number of calls in directory
 clear
 clc
-animal = '/media/brehm/Data/Panama/DataForPaper/Melese_incertus/PK1299/';
-rec_nr = 1;
+animal = '/media/brehm/Data/Panama/DataForPaper/Castur/PK1285/';
+rec_nr = 7;
 disp(['number of recordings: ', num2str(rec_nr)])
 d = dir(animal);
 dirFlags = [d.isdir];
@@ -67,7 +67,7 @@ for k = 1:length(recordings)
 end
 toc
 
-%%
+%
 IPI_A = []; IPI_P = []; pl_A = []; pl_P = []; call_duration = [];
 AT_duration = []; PT_duration = []; A_number = []; P_number = [];
 
@@ -83,8 +83,9 @@ for i = 1:size(call_stats, 1)
     P_number = [P_number, call_stats{i, 13}];
 end
 
-%% Save Call Stats to HDD
+% Save Call Stats to HDD
 save([animal, 'call_statistics.mat'])
+disp('data saved')
 
 %% Histogram IPI
 figure()
