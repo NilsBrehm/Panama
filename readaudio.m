@@ -5,7 +5,7 @@ file_list = d(3:end);
 calls = cell(length(file_list),1);
 
 for i = 1:length(file_list)
-   calls{i} = audioread([pathname, file_list(i).name]);
+    calls{i} = audioread([pathname, file_list(i).name]);
 end
 
 %%

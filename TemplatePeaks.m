@@ -58,21 +58,21 @@ pulse_times = pulse_locations / samplingrate;
 samples.active = [];
 samples.passive = [];
 
-% Active or Passive?
-for k = 1:length(pulse_locations)
-    pulse = data(pulse_locations(k)-50:pulse_locations(k)+50);
-    for i = 1:length(pulse) 
-        if 2*std(pulse(1:i+10)) > std(pulse(i+10:end))
-            peak = i;
-            break;
-        end
-    end
-    if mean(pulse(peak:peak+2)) > 0
-        samples.active = [samples.active, pulse_locations(k)];
-    else
-        samples.passive = [samples.passive, pulse_locations(k)];
-    end
-end
+% % Active or Passive?
+% for k = 1:length(pulse_locations)
+%     pulse = data(pulse_locations(k)-50:pulse_locations(k)+50);
+%     for i = 1:length(pulse) 
+%         if 2*std(pulse(1:i+10)) > std(pulse(i+10:end))
+%             peak = i;
+%             break;
+%         end
+%     end
+%     if mean(pulse(peak:peak+2)) > 0
+%         samples.active = [samples.active, pulse_locations(k)];
+%     else
+%         samples.passive = [samples.passive, pulse_locations(k)];
+%     end
+% end
 % pulsepeak = 10;
 % y = pulse(1:pulsepeak);
 % x = 1:length(y);
