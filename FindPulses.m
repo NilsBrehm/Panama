@@ -1,6 +1,6 @@
 %% DATA GATHERING AND PULSE DETECTION PART --------------------------------
 % -------------------------------------------------------------------------
-% ToDo: 
+% ToDo:
 % - Filter Signal
 % - Improve Pulse detection (Template approach)
 % - Improve Pulse duration detection (it is getting better ;D)
@@ -12,7 +12,7 @@ clear
 clc
 close all
 
-path_linux = '/media/brehm/Data/Panama/DataForPaper/Melese_incertus/PK1300/Pk13000016/';
+path_linux = '/media/brehm/Data/MasterMoth/stimuli/naturalmothcalls/';
 path_windows = 'D:\Masterarbeit\PanamaProject\DataForPaper\';
 
 [file,path] = uigetfile([path_linux, '*.wav'],'select a wav file');
@@ -62,7 +62,8 @@ data = bandpassfilter_data(data, 1000, 150*1000, 2, samplingrate, true, true);
 %% Sampling Rate Estimation
 recduration = 100; % in ms
 samplingrate_estimate = length(data)/(recduration/1000); % in Hz
-samplingrate = 256 * 1000;
+% samplingrate = 256 * 1000;
+samplingrate = fs;
 disp(['SAMPLING RATE: ', num2str(samplingrate/1000), ' kHz'])
 noise = 0;
 
@@ -83,12 +84,13 @@ nn = max(noise); % in absolute amplitude
 d1(d1<cutoff1 & d1>cutoff2) = 0;
 
 %% Find Pulses
+samplingrate = fs;
 % Do you want to use noise filtered data?
 filternoise = 0;
 
-thresholdA = 1.3*std(data);
-thresholdP = 1.3*std(data);
-pulselength = 150; % in samples
+thresholdA = .1 % *std(data);
+thresholdP = .1 % *std(data);
+pulselength = 100; % in samples
 manualcorrection = 0;
 if filternoise == 1
     [Peak, samples] = findpulsesalgo(d1, thresholdA, thresholdP, pulselength, filternoise);
@@ -100,6 +102,7 @@ end
 %% Plot pulses found
 % a2.DataIndex-a1.DataIndex
 clc
+disp(file)
 if filternoise == 1
     plot(d1, 'm', 'linewidth', 1.5)
 else
@@ -138,6 +141,10 @@ if filternoise == 1
     hold on
     plot(data, 'k', 'LineWidth', 0.8)
 end
+
+hold on
+env = envelope(data, round(length(data)/4), 'analytic');
+plot(env, 'g', 'LineWidth', 1.5)
 hold off
 
 disp(['Active  Pulses Found: ', num2str(length(samples.active))])
@@ -148,7 +155,7 @@ disp(['Total Pulses Found: ', num2str(length(Peak))])
 singlepulselength = zeros(1, length(Peak));
 j = 1;
 % limit_spl = quantile(data, .9);
-limit_spl = .3*std(data);
+limit_spl = 0.4*std(data);
 % limit_spl = 2*maxnoise;
 
 
@@ -197,11 +204,13 @@ call_stats = table(length(samples.active), mean(A_IPIs), std(A_IPIs), std(A_IPIs
 plot(data)
 hold on
 for p = 1:length(Peak)
-plot(Peak(p):Peak(p)+singlepulselength(p), data(Peak(p):Peak(p)+singlepulselength(p)), 'r')
-hold on
+    plot(Peak(p):Peak(p)+singlepulselength(p), data(Peak(p):Peak(p)+singlepulselength(p)), 'r')
+    hold on
 end
 
 %% save samples and call statistics
+samples.fs = samplingrate;
+disp('Achtung: Sampling Rate was stored in samples.fs')
 mkdir([path, file(1:end-4)]);
 filename = [path, file(1:end-4), '/', file(1:end-4)];
 save([filename, '_samples.mat'],'samples')
@@ -240,8 +249,9 @@ if exist('aa', 'var')
         samples.active = newsamples;
         Peak = [samples.active, samples.passive]; % Rebuild Peak
     end
+    disp(['added ', num2str(a) ,' active pulses'])
 end
-disp(['added ', num2str(a) ,' active pulses'])
+
 
 % Passive
 if exist('pp', 'var')
@@ -287,8 +297,8 @@ Peak = [samples.active, samples.passive]; % Rebuild Peak
 plot(data)
 hold on
 for p = 1:length(Peak)
-plot(Peak(p):Peak(p)+singlepulselength(p), data(Peak(p):Peak(p)+singlepulselength(p)), 'r')
-hold on
+    plot(Peak(p):Peak(p)+singlepulselength(p), data(Peak(p):Peak(p)+singlepulselength(p)), 'r')
+    hold on
 end
 
 %% Manual Correction
@@ -326,12 +336,12 @@ end
 
 % countA = zeros(1,length(callstarts));
 % countP = zeros(1,length(callstarts));
-% 
+%
 % for i = 1:length(callstarts)
 %     countA(i) = sum(samples.active >= callstarts(i) & samples.active <= callends(i));
 %     countP(i) = sum(samples.passive >= callstarts(i) & samples.passive <= callends(i));
 % end
-% 
+%
 % pulsenumberA = [1, countA(1)];
 % pulsenumberP = [1, countP(1)];
 % for i = 2:length(countA)

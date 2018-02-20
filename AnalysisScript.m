@@ -2,20 +2,20 @@
 % -------------------------------------------------------------------------
 %% Choose analysis window
 disp(['min. pulse length: ', num2str(min(singlepulselength)), ' samples'])
-pulsewindowstart = -10;
+pulsewindowstart = 0;
 % ---------------------------------
 ms = 0.4;
 % ---------------------------------
 % pulsewindowend = round(median(singlepulselength))-20;
 % pulsewindowend = round(min(singlepulselength))+30;
-pulsewindowend = (ms/1000)*samplingrate;
+pulsewindowend = round((ms/1000)*samplingrate)-60;
 windowstart = 1;
 % windowend = round(median(singlepulselength))-20;
 % windowend = round(min(singlepulselength))+30;
-windowend = (ms/1000)*samplingrate;
+windowend = round((ms/1000)*samplingrate)-60;
 baseline = 5;
 % !!! SET CORRECT SAMPLING RATE !!! --------------------------------------
-samplingrate = 480 * 1000;
+% samplingrate = 480 * 1000;
 disp(['Used Sampling Rate: ', num2str(samplingrate/1000), ' kHz'])
 % =========================================================================
 % =========================================================================
