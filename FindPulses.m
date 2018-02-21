@@ -142,9 +142,6 @@ if filternoise == 1
     plot(data, 'k', 'LineWidth', 0.8)
 end
 
-hold on
-env = envelope(data, round(length(data)/4), 'analytic');
-plot(env, 'g', 'LineWidth', 1.5)
 hold off
 
 disp(['Active  Pulses Found: ', num2str(length(samples.active))])

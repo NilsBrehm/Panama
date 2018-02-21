@@ -81,9 +81,52 @@ disp(['passive: ', num2str(length(samples.passive))])
 
 %%-------------------------------------------------------------------------
 %% Thresholding Algo Function:
-[signals,avgFilter,stdFilter] = ThresholdingAlgo(data, 50, 6, .5);
+% add zeros
+data = [zeros(200, 1); data];
+
+%%
+[signals,avgFilter,stdFilter] = ThresholdingAlgo(data, 50, 10, 0.5, 'mean');
+peaks = diff(signals);
 
 %%
 plot(data); hold on; plot(avgFilter, 'r'); hold on; plot(avgFilter+stdFilter, 'r--'); hold on; plot(avgFilter-stdFilter, 'r--')
+%hold on
+%plot(signals, 'b')
 hold on
-plot(signals, 'b')
+plot(peaks,'g')
+
+
+%%
+clear samples
+pulse_duration = 50;
+p = find(peaks == 1);
+p = [0 ;p];
+%samples.pos(1) = p(1);
+count = 1;
+count_a = 1;
+count_p = 1;
+for i = 1:1:length(p)-1
+    if abs(p(i)-p(i+1)) > pulse_duration    
+        samples.pos(count) = p(i+1);
+        count = 1 + count;
+        % Active or Passive?
+        if data(p(i+1)) >= 0
+           samples.active(count_a) = p(i+1);
+           count_a = count_a + 1;
+        else
+            samples.passive(count_p) = p(i+1);
+            count_p = count_p + 1;
+        end
+    end
+end
+
+plot(data, 'k')
+hold on
+plot(samples.active, data(samples.active), 'ro')
+hold on
+plot(samples.passive, data(samples.passive), 'bo')
+disp(['active: ', num2str(length(samples.active))])
+disp(['passive: ', num2str(length(samples.passive))])
+
+%% Find Peaks Envelope Algo:
+[peaks, peaks_diff, samples] = find_peaks_env(data, 100, 'rms', 20, true);

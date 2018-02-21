@@ -1,11 +1,16 @@
-function [signals,avgFilter,stdFilter] = ThresholdingAlgo(y,lag,threshold,influence)
+function [signals,avgFilter,stdFilter] = ThresholdingAlgo(y,lag,threshold,influence, average)
 % Initialise signal results
 signals = zeros(length(y),1);
 % Initialise filtered series
 filteredY = y(1:lag+1);
 % Initialise filters
-avgFilter(lag+1,1) = mean(y(1:lag+1));
-stdFilter(lag+1,1) = std(y(1:lag+1));
+if strcmp(average, 'mean')
+    avgFilter(lag+1,1) = mean(y(1:lag+1));
+    stdFilter(lag+1,1) = std(y(1:lag+1));
+elseif strcmp(average, 'median')
+    avgFilter(lag+1,1) = median(y(1:lag+1));
+    stdFilter(lag+1,1) = mad(y(1:lag+1), 1);
+end
 % Loop over all datapoints y(lag+2),...,y(t)
 for i=lag+2:length(y)
     % If new value is a specified number of deviations away
@@ -25,8 +30,13 @@ for i=lag+2:length(y)
         filteredY(i) = y(i);
     end
     % Adjust the filters
-    avgFilter(i) = mean(filteredY(i-lag:i));
-    stdFilter(i) = std(filteredY(i-lag:i));
+    if strcmp(average, 'mean')
+        avgFilter(i) = mean(filteredY(i-lag:i));
+        stdFilter(i) = std(filteredY(i-lag:i));
+    elseif strcmp(average, 'median')
+        avgFilter(i) = median(filteredY(i-lag:i));
+        stdFilter(i) = mad(filteredY(i-lag:i), 1);
+    end
 end
 % Done, now return results
 end
