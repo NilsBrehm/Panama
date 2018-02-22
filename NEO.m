@@ -32,7 +32,7 @@ plot(neo, 'r')
 
 %% PeakSeek
 clc
-x = bandpassfilter_data(data, 5000, 150*1000, 4, 480*1000, true, true);
-[locs, pks] = peakseek(x, 100, .03);
+x = bandpassfilter_data(data, 10000, 150*1000, 4, 480*1000, true, true);
+[locs, pks] = peakseek(x, 70, .3);
 plot(x);hold on; plot(locs, x(locs), 'ro')
 disp(['pulses: ', num2str(length(locs))])

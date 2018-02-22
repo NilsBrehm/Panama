@@ -57,7 +57,7 @@ d1 = diff(d1);
 % Filter Recording
 samplingrate = 480 * 1000;
 data_backup = data;
-data = bandpassfilter_data(data, 1000, 150*1000, 2, samplingrate, true, true);
+data = bandpassfilter_data(data, 5000, 150*1000, 4, samplingrate, true, true);
 
 %% Sampling Rate Estimation
 recduration = 100; % in ms
@@ -88,8 +88,8 @@ samplingrate = fs;
 % Do you want to use noise filtered data?
 filternoise = 0;
 
-thresholdA = .1 % *std(data);
-thresholdP = .1 % *std(data);
+thresholdA = .0025 % *std(data);
+thresholdP = .002 % *std(data);
 pulselength = 100; % in samples
 manualcorrection = 0;
 if filternoise == 1
@@ -102,7 +102,6 @@ end
 %% Plot pulses found
 % a2.DataIndex-a1.DataIndex
 clc
-disp(file)
 if filternoise == 1
     plot(d1, 'm', 'linewidth', 1.5)
 else

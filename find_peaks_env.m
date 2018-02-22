@@ -27,15 +27,19 @@ if strcmp(method, 'rms')
     env = envelope(data , window, method);
     env = movmean(env, 10);
     env_diff = diff(env);
-    [~, peaks] = findpeaks(env, 'MinPeakHeight', 2*rms(data), 'MinPeakDistance', mpd);
-    [~, peaks_diff] = findpeaks(env_diff, 'MinPeakHeight', 2*rms(env_diff), 'MinPeakDistance', mpd);
+    th_rms = mad(env);
+    th_rms_diff = std(env_diff);
+    [~, peaks] = findpeaks(env, 'MinPeakHeight', th_rms, 'MinPeakDistance', mpd);
+    [~, peaks_diff] = findpeaks(env_diff, 'MinPeakHeight', th_rms_diff, 'MinPeakDistance', mpd);
     
 elseif strcmp(method, 'analytic')
     env = envelope(data , window*10, method);
     env = movmean(env, 10);
     env_diff = diff(env);
-    [~, peaks] = findpeaks(env, 'MinPeakHeight', max(data)/2, 'MinPeakDistance', 2*mpd);
-    [~, peaks_diff] = findpeaks(env_diff, 'MinPeakHeight', max(env_diff)/2, 'MinPeakDistance', 2*mpd);
+    th_env = std(env);
+    th_env_diff = std(env_diff);
+    [~, peaks] = findpeaks(env, 'MinPeakHeight', th_env, 'MinPeakDistance', 2*mpd);
+    [~, peaks_diff] = findpeaks(env_diff, 'MinPeakHeight', th_env_diff, 'MinPeakDistance', 2*mpd);
 else
     error('find_peaks_env:IncorrectMethod', ...
         'Valid methods: "raw" and "analytic"');
@@ -58,6 +62,14 @@ if show_plot
         plot(x, data(x), 'g')
         hold on
     end
+    if strcmp(method, 'analytic')
+        plot([1 length(data)], [th_env, th_env], 'b--'); hold on;
+        plot([1 length(data)], [th_env_diff, th_env_diff], 'r--')
+    end
+    if strcmp(method, 'rms')
+        plot([1 length(data)], [th_rms, th_rms], 'b--'); hold on;
+        plot([1 length(data)], [th_rms_diff, th_rms_diff], 'r--')
+    end
     hold off
 end
 %legend('data', 'env', 'env dt', 'peaks env', 'peaks env dt')
@@ -65,26 +77,29 @@ end
 % Active or Passive?
 samples.active = [];
 samples.passive = [];
-
-for i = 1:length(peaks)
-    cond1 = data(peaks(i)) > 0;
-    x = peaks_diff(i):1:peaks_diff(i)+5;
-    cond2 = mean(data(x)) > 0;
-    
-    if cond2 && cond1
-        disp(['Pulse ', num2str(i), ' is active'])
-        samples.active = [samples.active, peaks_diff(i)];
-    elseif ~cond2 && ~cond2
-        disp(['Pulse ', num2str(i), ' is passive'])
-        samples.passive = [samples.passive, peaks_diff(i)];
-    elseif cond2 && ~cond1
-        disp(['Pulse ', num2str(i), ' is active (with warning)'])
-        samples.active = [samples.active, peaks_diff(i)];
-    elseif ~cond2 && cond1
-        disp(['Pulse ', num2str(i), ' is passive (with warning)'])
-        samples.passive = [samples.passive, peaks_diff(i)];
-    else
-        disp(['Pulse ', num2str(i), ' is undecidable'])
+if length(peaks) == length(peaks_diff)
+    for i = 1:length(peaks)
+        cond1 = data(peaks(i)) > 0;
+        x = peaks_diff(i):1:peaks_diff(i)+5;
+        cond2 = mean(data(x)) > 0;
+        
+        if cond2 && cond1
+            %disp(['Pulse ', num2str(i), ' is active'])
+            samples.active = [samples.active, peaks_diff(i)];
+        elseif ~cond2 && ~cond2
+            %disp(['Pulse ', num2str(i), ' is passive'])
+            samples.passive = [samples.passive, peaks_diff(i)];
+        elseif cond2 && ~cond1
+            %disp(['Pulse ', num2str(i), ' is active (with warning)'])
+            samples.active = [samples.active, peaks_diff(i)];
+        elseif ~cond2 && cond1
+            %disp(['Pulse ', num2str(i), ' is passive (with warning)'])
+            samples.passive = [samples.passive, peaks_diff(i)];
+        else
+            %disp(['Pulse ', num2str(i), ' is undecidable'])
+        end
     end
+else
+    disp('Could not discriminate between active and passive (env and env_diff peaks different)')
 end
 end
