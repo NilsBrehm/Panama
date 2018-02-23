@@ -1,9 +1,8 @@
-data = [zeros(200, 1); data];
-
+locs = locs_ps;
 %%
 clc
 for i = 1:length(locs)
-    pulse_full = data(locs(i)-50:locs(i)+100);
+    pulse_full = data(locs(i)-10:locs(i)+10);
     th = mad(pulse_full, 2);
     [locsA, pksA] = peakseek(pulse_full, 10, th);
     [locsP, pksP] = peakseek(-pulse_full, 10, th);

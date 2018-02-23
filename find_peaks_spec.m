@@ -1,4 +1,4 @@
-function locs = find_peaks_spec(data, fs, mpd, show_plot)
+function locs = find_peaks_spec(data, fs, mpd, th, show_plot)
 % Compute Spectrogram
 window_size = 50; % the larger the better the spectral res (temp res goes down)
 window = hann(window_size);
@@ -45,7 +45,7 @@ if show_plot
     plot(ndt, 'r')
 end
 % Find peaks in power values or derivative and locate pulse position
-mph = 2*mad(n);
+mph = th*mad(n);
 %[peaks_value, peaks_loc] = findpeaks(n, 'MinPeakHeight', mph, 'MinPeakDistance', mpd);
 [locs, ~] = peakseek(n, mpd, mph);
 factor = window_size - noverlap;
