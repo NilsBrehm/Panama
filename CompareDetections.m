@@ -11,8 +11,10 @@ path_windows = 'D:\Masterarbeit\PanamaProject\DataForPaper\';
 open(fullfile(path,file))
 
 %% Filter Data
+clc
+fs = 480 * 1000;
 y = [zeros(200, 1); data];
-x = bandpassfilter_data(y, 5000, 100*1000, 4, fs, true, true);
+x = bandpassfilter_data(y, 4000, 200*1000, 4, fs, true, true);
 
 % Parameters
 show_plot = true;
@@ -24,7 +26,7 @@ show_plot = true;
 % Parameters: 1 (Min Peak Distance of spectral power peaks (n))
 % Thresholding: automatic: th*mad(n);
 clc
-th = 2;
+th = 20;
 mpd = 10;
 locs_spec = find_peaks_spec(x, fs, mpd, th, false);
 if show_plot
@@ -64,8 +66,8 @@ end
 
 clc
 method = 'rms';
-window = 20;
-mpd = 200;
+window = 2;
+mpd = 500;
 [locs_env, locs_env_diff, samples_env] = find_peaks_env(x, mpd, method, window, true);
 if show_plot
     figure()
@@ -112,11 +114,11 @@ end
 % - Template length, tau and frequency
 % - Peak detection: MinPeakDistance and Threshold
 clc
-pulse_length = 1;
+pulse_length = .5;
 tau = 0.1;
 frequency = 50;
 mpd = 100;
-th = 0.15;
+th = 0.01;
 [locs_temp, samples_temp, r, ~, template] = TemplatePeaks(x ,fs/1000,...
     pulse_length, frequency, tau, th, mpd, 0, true);
 if show_plot
@@ -125,8 +127,8 @@ if show_plot
     plot(samples_temp.active, x(samples_temp.active), 'ro'); hold on;
     plot(samples_temp.passive, x(samples_temp.passive), 'bo'); hold on;
     plot(template,'r')
-%     figure()
-%     plot(r)
+    figure()
+    plot(r)
     disp(file)
     disp(['active: ', num2str(length(samples_temp.active))])
     disp(['passive: ', num2str(length(samples_temp.passive))])
@@ -139,7 +141,7 @@ end
 
 cutrec = 0.1*fs; % = 100 ms in samples
 xx = x;
-xx(end-cutrec:end) = [];
+%xx(end-cutrec:end) = [];
 lag = 40;
 th_tha = 10; % in x times std
 influence = 0.5;
@@ -179,15 +181,15 @@ end
 clc
 cutrec = 0.1*fs; % = 100 ms in samples
 xx = x;
-xx(end-cutrec:end) = [];
-sg = downsample(xx,1);
+%xx(end-cutrec:end) = [];
+sg = downsample(xx,4);
 peaks_pos = ampd(sg);
 peaks_neg = ampd(-sg);
 plot(sg); hold on; plot(peaks_pos(2:end), sg(peaks_pos(2:end)),'ro')
 
 %% Look for the first peak and remove all the others
-th_ampd = 1*mad(sg);
-th_diff = 15;
+th_ampd = 0.0035;%2*mad(sg);
+th_diff = 100;
 
 % Delete all peaks that are smaller than threshold:
 peaks_pos(sg(peaks_pos) < th_ampd) = [];
