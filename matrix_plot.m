@@ -8,7 +8,7 @@ if nargin < 7
     showvalues = false;
 end
 
-imagesc(input); c = colorbar('xlim', limit, 'Fontsize',8, 'FontName', 'Times');
+imagesc(input); c = colorbar('xlim', limit, 'Fontsize',5, 'FontName', 'Times');
 
 if showvalues
     for j= 1:noPulsesA
@@ -18,9 +18,9 @@ if showvalues
     end
 end
 % axis xy
-set(gca, 'Fontsize', 6, 'FontName', 'Times') % Font Size of tick values
-xlabel(labelx, 'FontSize', 10, 'FontName', 'Times')
-ylabel(labely, 'FontSize', 10, 'FontName', 'Times')
+set(gca, 'Fontsize', 3, 'FontName', 'Times') % Font Size of tick values
+xlabel(labelx, 'FontSize', 5, 'FontName', 'Times')
+ylabel(labely, 'FontSize', 5, 'FontName', 'Times')
 xticks(1:1:noPulsesP);
 yticks(1:1:noPulsesA);
 c.Label.String = colorbarlabel;

@@ -1,10 +1,13 @@
-function samples = activeorpassive(x, th_factor, locs_ps, fs, limit, filter_pulse, method, apriori, show_plot)
+function [samples, pulse_duration, freq, power] = activeorpassive(x, th_factor, locs_ps, fs, limit, filter_pulse, method, apriori, show_plot)
 
 
 % Find Start of Pulse and discriminate between active and passive
 % The pulse need to be detected beforehand.
 peaks = zeros(2, length(locs_ps));
 found_pulses = zeros(1, length(locs_ps));
+pulse_duration = zeros(1, length(locs_ps));
+freq = zeros(1, length(locs_ps));
+power = zeros(1, length(locs_ps));
 for i = 1:length(locs_ps)
     pulse = x(locs_ps(i)-limit:locs_ps(i)+limit);
     if strcmp(method, 'diff')
@@ -19,20 +22,43 @@ for i = 1:length(locs_ps)
     
     pA = locsA(1);
     pP = locsP(1);
+    dA = diff(locsA);
+    dP = diff(locsP);
     
     % 0 = active, 1 = passive
     if pA < pP
         peaks(1, i) = pA;
         peaks(2, i) = 0;
+        peak_long = pA;
         tlt = 'active';
     else
         peaks(1, i) = pP;
         peaks(2, i) = 1;
+        peak_long = pP;
         tlt = 'passive';
     end
     
+    
+    
+    % Pulse Length
+    pulse_long = x(locs_ps(i)-limit:locs_ps(i)+limit+100);
+    env = envelope(pulse_long);
+    % env_th = std(pulse_long);
+    env_th = mad(pulse_long, 1);
+    pulse_ends = find(env(peak_long:end) <= env_th);
+    pulse_stop = pulse_ends(1) + peak_long;
+    
+    pulse_duration(i) = abs(peak_long-pulse_stop);
+    
+    % Frequency Components
+    [P1,f1] = periodogram(pulse_long,[],[],fs,'power');
+    P1 = 10 * log10(P1); % to get db values
+    [power(i), b] = max(P1);
+    freq(i) = f1(b); 
+    
+    % Plot
     if show_plot(1)
-        subplot(2,1,1)
+        subplot(4, 1, 1)
         plot(pulse)
         hold on
         plot(locsA, pulse(locsA), 'ko')
@@ -43,7 +69,7 @@ for i = 1:length(locs_ps)
         title(tlt)
         hold off
         
-        subplot(2, 1, 2)
+        subplot(4, 1, 2)
         plot(pulse)
         hold on
         plot(locsP, pulse(locsP), 'ko')
@@ -52,10 +78,26 @@ for i = 1:length(locs_ps)
         hold on
         plot([1, length(pulse)], [-th, -th], 'r--')
         hold off
+        
+        subplot(4, 1, 3)
+        plot(pulse_long);hold on; plot(env); hold on;
+        plot([1, length(pulse_long)], [env_th, env_th], 'r--'); hold on;
+        plot(peak_long, pulse_long(peak_long), 'mo'); hold on;
+        plot(pulse_stop, pulse_long(pulse_stop), 'mx')
+        hold off
+        
+        subplot(4, 1, 4)
+        plot(f1, P1, 'k')
+        hold on
+        plot(f1(b), P1(b), 'ro')
+        hold off
+        
         waitforbuttonpress;
     end
-    % recalculate original position
     
+       
+    
+    % recalculate original position
     if apriori
         found_pulses(1, i) = locs_ps(i) - ((limit+1) - pA);
         found_pulses(2, i) = locs_ps(i) - ((limit+1) - pP);

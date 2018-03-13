@@ -13,14 +13,14 @@
 
 %%
 % Use this to change the path:
-% path = 'D:\Masterarbeit\2018-01-12\Panama\DataForPaper\Castur\PK1248\';
+path = '/media/brehm/Data/Panama/DataForPaper/SingleExamples/Carales/';
 % filename = [path, file(1:end-4), '\'];
 
 %% Plotting Parameters
 clc
 filename = [path, file(1:end-4), '/'];
 toomanypulses = 0;
-showvalues = true;
+showvalues = false;
 callseries = 0;
 save_figs = 1;
 if save_figs == 1
@@ -231,3 +231,6 @@ end
 %% Save Data
 save([filename, file(1:end-4), '.mat'])
 disp('Plotting done and data saved')
+
+%%
+save([path, 'data.mat'])
