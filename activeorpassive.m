@@ -59,6 +59,7 @@ while i <= length(locs_ps)
         fig = figure(1);
         pos_fig = [500 500 300 800];
         set(fig, 'Color', 'white', 'position', pos_fig)
+        % Plot Active Pulse Detection
         subplot(4, 1, 1)
         plot(pulse)
         hold on
@@ -72,6 +73,7 @@ while i <= length(locs_ps)
         xlabel('Samples')
         hold off
         
+        % Plot Passive Pulse Detection
         subplot(4, 1, 2)
         plot(pulse)
         hold on
@@ -84,17 +86,19 @@ while i <= length(locs_ps)
         ylabel('Amplitude')
         hold off
         
+        % Plot Envelope to show pulse duration estimate
         subplot(4, 1, 3)
         plot(pulse_long);hold on; plot(env); hold on;
         plot([1, length(pulse_long)], [env_th, env_th], 'r--'); hold on;
-        plot(peak_long, pulse_long(peak_long), 'mo'); hold on;
-        plot(pulse_stop, pulse_long(pulse_stop), 'mx')
+        plot(peak_long, pulse_long(peak_long), 'ro', 'MarkerSize', 6, 'MarkerFaceColor', 'k'); 
+        hold on;
+        plot(pulse_stop, pulse_long(pulse_stop), 'ko', 'MarkerSize', 6, 'MarkerFaceColor', 'r')
         xlabel('Samples')
         ylabel('Amplitude')
         hold off
         
+        % Plot Power vs Frequency
         subplot(4, 1, 4)
-        %plot(f1, P1, 'k')
         periodogram(pulse_long,[],[],fs,'power')
         hold on
         plot(f1(b)/1000, P1(b), 'ro')
@@ -120,13 +124,34 @@ while i <= length(locs_ps)
                 env_th_factor = str2double(answer{3});
                 currkey=1;
                 repeat = 1;
-            elseif strcmp(currkey, 'z') % Enter Close Up Mode
+            elseif strcmp(currkey, 'z') % Enter Zoom Mode
+                pulse_verylong = x(locs_ps(i)-(limit+50):locs_ps(i)+limit+150);
                 fig2 = figure(3);
                 pos_fig = [500 500 800 600];
                 set(fig2, 'Color', 'white', 'position', pos_fig)
-                plot(pulse_long, 'k')
+                % plot(pulse_long, 'k')
+                plot(pulse_verylong);hold on; plot(50:length(env)+49, env); hold on;
+                plot([1, length(pulse_verylong)], [env_th, env_th], 'r--'); hold on;
+                plot(peak_long+50, pulse_verylong(peak_long+50), 'ro', 'MarkerSize', 10); 
+                hold on;
+                plot(pulse_stop+50, pulse_verylong(pulse_stop+50), 'rx', 'MarkerSize', 10)
+                xlabel('Samples')
+                ylabel('Amplitude')
+                hold off
                 waitforbuttonpress
                 close(figure(3))
+                currkey=0;
+            elseif strcmp(currkey, 'p') % Enter Zoomed Periodogram
+                fig4 = figure(4);
+                pos_fig = [500 500 800 600];
+                set(fig4, 'Color', 'white', 'position', pos_fig)
+                periodogram(pulse_long,[],[],fs,'power')
+                hold on
+                plot(f1(b)/1000, P1(b), 'ro')
+                title('')
+                hold off
+                waitforbuttonpress
+                close(figure(4))
                 currkey=0;
             elseif strcmp(currkey, 'escape') % Exit
                 disp('Exit Program')

@@ -16,7 +16,8 @@ end
 %% Start Detection
 clc
 disp('Press "c" to enter correction mode')
-disp('Press "z" to enter zoom mode')`
+disp('Press "z" to enter zoom mode')
+disp('Press "p" show enlarged periodogram')
 disp('Press "enter" to continue')
 disp('Press "ESC" to exit')
 
@@ -40,7 +41,9 @@ for k = 1:length(recs)
     thf = 7;
     th = thf*std(x);
     [locs_ps, ~] = peakseek(x, mpd, th);
-    figure()
+    ff = figure();
+    pos_fig = [500 500 800 600];
+    set(ff, 'Color', 'white', 'position', pos_fig)
     plot(x, 'k')
     hold on
     plot(locs_ps, x(locs_ps), 'mx', 'MarkerSize', 10)
