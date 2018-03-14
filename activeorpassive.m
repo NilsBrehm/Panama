@@ -22,8 +22,6 @@ for i = 1:length(locs_ps)
     
     pA = locsA(1);
     pP = locsP(1);
-    dA = diff(locsA);
-    dP = diff(locsP);
     
     % 0 = active, 1 = passive
     if pA < pP
@@ -43,7 +41,6 @@ for i = 1:length(locs_ps)
     % Pulse Length
     pulse_long = x(locs_ps(i)-limit:locs_ps(i)+limit+100);
     env = envelope(pulse_long);
-    % env_th = std(pulse_long);
     env_th = mad(pulse_long, 1);
     pulse_ends = find(env(peak_long:end) <= env_th);
     pulse_stop = pulse_ends(1) + peak_long;
@@ -54,10 +51,13 @@ for i = 1:length(locs_ps)
     [P1,f1] = periodogram(pulse_long,[],[],fs,'power');
     P1 = 10 * log10(P1); % to get db values
     [power(i), b] = max(P1);
-    freq(i) = f1(b); 
+    freq(i) = f1(b);
     
     % Plot
     if show_plot(1)
+        fig = figure(1);
+        pos_fig = [500 500 300 800];
+        set(fig, 'Color', 'white', 'position', pos_fig)
         subplot(4, 1, 1)
         plot(pulse)
         hold on
@@ -66,7 +66,9 @@ for i = 1:length(locs_ps)
         plot(pA, pulse(pA), 'ro')
         hold on
         plot([1, length(pulse)], [th, th], 'r--')
-        title(tlt)
+        title(['Set to ', tlt])
+        ylabel('Amplitude')
+        xlabel('Samples')
         hold off
         
         subplot(4, 1, 2)
@@ -77,6 +79,8 @@ for i = 1:length(locs_ps)
         plot(pP, pulse(pP), 'bo')
         hold on
         plot([1, length(pulse)], [-th, -th], 'r--')
+        xlabel('Samples')
+        ylabel('Amplitude')
         hold off
         
         subplot(4, 1, 3)
@@ -84,18 +88,39 @@ for i = 1:length(locs_ps)
         plot([1, length(pulse_long)], [env_th, env_th], 'r--'); hold on;
         plot(peak_long, pulse_long(peak_long), 'mo'); hold on;
         plot(pulse_stop, pulse_long(pulse_stop), 'mx')
+        xlabel('Samples')
+        ylabel('Amplitude')
         hold off
         
         subplot(4, 1, 4)
-        plot(f1, P1, 'k')
+        %plot(f1, P1, 'k')
+        periodogram(pulse_long,[],[],fs,'power')
         hold on
-        plot(f1(b), P1(b), 'ro')
+        plot(f1(b)/1000, P1(b), 'ro')
+        title('')
         hold off
         
-        waitforbuttonpress;
+        % do not move on until enter key is pressed
+        currkey=0;
+        while currkey~=1
+            pause; % wait for a keypress
+            currkey=get(gcf,'CurrentKey');
+            if strcmp(currkey, 'return')
+                currkey=1;
+            elseif strcmp(currkey, 'c')
+                currkey=0;
+                th_factor = input('th_factor = ');
+                limit = input('limit = ');
+                [samples, pulse_duration, freq, power] = ...
+                    activeorpassive(x, th_factor, locs_ps, fs, limit,...
+                    filter_pulse, method, apriori, show_plot);
+            else
+                currkey=0;
+            end
+        end
     end
     
-       
+    
     
     % recalculate original position
     if apriori

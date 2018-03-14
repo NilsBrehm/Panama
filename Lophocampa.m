@@ -16,6 +16,7 @@ end
 %%
 clc
 results = [];
+call_stats = cell(length(recs), 2);
 for k = 1:length(recs)
     % Open data
     path_linux = [rec_path, recs{k}];
@@ -87,27 +88,27 @@ for k = 1:length(recs)
     
     IPIs = (diff(Peak)/samplingrate)*1000;
     
-    % Plot marked pulses with their respective pulse length
-    figure()
-    plot(x)
-    hold on
-    for p = 1:length(Peak)
-        plot(Peak(p):Peak(p)+pulse_duration(p), x(Peak(p):Peak(p)+pulse_duration(p)), 'r')
-        hold on
-    end
-    hold off
-    currkey=0;
-    % do not move on until enter key is pressed
-    while currkey~=1
-        pause; % wait for a keypress
-        currkey=get(gcf,'CurrentKey');
-        if strcmp(currkey, 'return')
-            currkey=1;
-        else
-            currkey=0;
-        end
-    end
-    close all
+%     % Plot marked pulses with their respective pulse length
+%     figure()
+%     plot(x)
+%     hold on
+%     for p = 1:length(Peak)
+%         plot(Peak(p):Peak(p)+pulse_duration(p), x(Peak(p):Peak(p)+pulse_duration(p)), 'r')
+%         hold on
+%     end
+%     hold off
+%     currkey=0;
+%     % do not move on until enter key is pressed
+%     while currkey~=1
+%         pause; % wait for a keypress
+%         currkey=get(gcf,'CurrentKey');
+%         if strcmp(currkey, 'return')
+%             currkey=1;
+%         else
+%             currkey=0;
+%         end
+%     end
+%     close all
     
     % Put all call statistics in one table
     record = convertCharsToStrings(recs{k});
@@ -124,6 +125,8 @@ for k = 1:length(recs)
     end
     
     results = [results; re];
+    call_stats{k, 1} = record;
+    call_stats{k, 2} = abs(min(Peak)-max(Peak))/fs;
     % save samples
     %     mkdir([path, file(1:end-4)]);
     %     filename = [path, file(1:end-4), '/', file(1:end-4)];
