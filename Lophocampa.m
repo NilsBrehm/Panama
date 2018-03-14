@@ -13,8 +13,13 @@ for i = 3:length(listing)
     end
 end
 
-%%
+%% Start Detection
 clc
+disp('Press "c" to enter correction mode')
+disp('Press "z" to enter zoom mode')`
+disp('Press "enter" to continue')
+disp('Press "ESC" to exit')
+
 results = [];
 call_stats = cell(length(recs), 2);
 for k = 1:length(recs)
@@ -32,13 +37,13 @@ for k = 1:length(recs)
     % Find peaks in recording
     % x = [zeros(200, 1); x];
     mpd = 100;
-    th = 7*std(x);
+    thf = 7;
+    th = thf*std(x);
     [locs_ps, ~] = peakseek(x, mpd, th);
     figure()
     plot(x, 'k')
     hold on
     plot(locs_ps, x(locs_ps), 'mx', 'MarkerSize', 10)
-    disp(length(locs_ps))
     
     currkey=0;
     % do not move on until enter key is pressed
@@ -49,14 +54,23 @@ for k = 1:length(recs)
             currkey=1;
         elseif strcmp(currkey, 'c')
             currkey=0;
-            mpd = 100;
-            th = 4*std(x);
+            prompt = {'threshold factor:','min peak distance:'};
+            dlg_title = 'Pulse Detection Settings';
+            num_lines = 1;
+            defaultans = {num2str(thf), num2str(mpd)};
+            answer = inputdlg(prompt,dlg_title,num_lines,defaultans);
+            thf = str2double(answer{1});
+            mpd = str2double(answer{2});
+            th = thf*std(x);
             [locs_ps, ~] = peakseek(x, mpd, th);
             hold off
             plot(x, 'k')
             hold on
             plot(locs_ps, x(locs_ps), 'mx', 'MarkerSize', 10)
-            disp(length(locs_ps))
+        elseif strcmp(currkey, 'escape')
+            disp('Exit Program')
+            close all
+            return
         else
             currkey=0;
         end
@@ -66,19 +80,23 @@ for k = 1:length(recs)
     % Find Active and Passive Pulses and detect pulse duration
     th_factor = .5 ; % th = th_factor * mad(pulse)
     limit = 20;
+    env_th_factor = 1;
     filter_pulse = false;
     show = [true, true];
     method = 'raw';
     apriori = false; % assumption that first half is active and second is passive
-    [samples, pulse_duration, freq, power] = activeorpassive(x, th_factor, locs_ps, fs, limit, filter_pulse, method, apriori, show);
-    disp(['active ', num2str(length(samples.active))])
-    disp(['passive ', num2str(length(samples.passive))])
-    
+    [samples, pulse_duration, freq, power] = activeorpassive(x, th_factor,...
+        locs_ps, fs, limit, env_th_factor, filter_pulse, method, apriori, show);
+%     disp(['active ', num2str(length(samples.active))])
+%     disp(['passive ', num2str(length(samples.passive))])
+    if isempty(samples)
+        return
+    end
     if isempty(samples.passive)
-        disp('Only active pulses found')
+        disp([recs{k} ,': Only active pulses found'])
         continue
     elseif isempty(samples.active)
-        disp('Only passive pulses found')
+        disp([recs{k} ,': Only passive pulses found'])
         continue
     end
     
@@ -133,7 +151,7 @@ for k = 1:length(recs)
     %     save([filename, '_samples.mat'],'samples')
     %     disp('Samples saved')
     %
-    clc
+    disp([recs{k}, ' done'])
 end
 
 % Make Table

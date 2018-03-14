@@ -1,4 +1,4 @@
-function [samples, pulse_duration, freq, power] = activeorpassive(x, th_factor, locs_ps, fs, limit, filter_pulse, method, apriori, show_plot)
+function [samples, pulse_duration, freq, power] = activeorpassive(x, th_factor, locs_ps, fs, limit, env_th_factor, filter_pulse, method, apriori, show_plot)
 
 
 % Find Start of Pulse and discriminate between active and passive
@@ -8,7 +8,8 @@ found_pulses = zeros(1, length(locs_ps));
 pulse_duration = zeros(1, length(locs_ps));
 freq = zeros(1, length(locs_ps));
 power = zeros(1, length(locs_ps));
-for i = 1:length(locs_ps)
+i = 1;
+while i <= length(locs_ps)
     pulse = x(locs_ps(i)-limit:locs_ps(i)+limit);
     if strcmp(method, 'diff')
         pulse = diff(pulse);
@@ -41,7 +42,7 @@ for i = 1:length(locs_ps)
     % Pulse Length
     pulse_long = x(locs_ps(i)-limit:locs_ps(i)+limit+100);
     env = envelope(pulse_long);
-    env_th = mad(pulse_long, 1);
+    env_th = env_th_factor * mad(pulse_long, 1);
     pulse_ends = find(env(peak_long:end) <= env_th);
     pulse_stop = pulse_ends(1) + peak_long;
     
@@ -102,25 +103,45 @@ for i = 1:length(locs_ps)
         
         % do not move on until enter key is pressed
         currkey=0;
+        repeat = 0;
         while currkey~=1
             pause; % wait for a keypress
             currkey=get(gcf,'CurrentKey');
-            if strcmp(currkey, 'return')
+            if strcmp(currkey, 'return') % All good
                 currkey=1;
-            elseif strcmp(currkey, 'c')
+            elseif strcmp(currkey, 'c') % Enter Correction Mode
+                prompt = {'Threshold Factor:','Limit:','Envelope Threshold Factor'};
+                dlg_title = 'Detection Settings';
+                num_lines = 1;
+                defaultans = {num2str(th_factor), num2str(limit), num2str(env_th_factor)};
+                answer = inputdlg(prompt,dlg_title,num_lines,defaultans);
+                limit = str2double(answer{2});
+                th_factor = str2double(answer{1});
+                env_th_factor = str2double(answer{3});
+                currkey=1;
+                repeat = 1;
+            elseif strcmp(currkey, 'z') % Enter Close Up Mode
+                fig2 = figure(3);
+                pos_fig = [500 500 800 600];
+                set(fig2, 'Color', 'white', 'position', pos_fig)
+                plot(pulse_long, 'k')
+                waitforbuttonpress
+                close(figure(3))
                 currkey=0;
-                th_factor = input('th_factor = ');
-                limit = input('limit = ');
-                [samples, pulse_duration, freq, power] = ...
-                    activeorpassive(x, th_factor, locs_ps, fs, limit,...
-                    filter_pulse, method, apriori, show_plot);
+            elseif strcmp(currkey, 'escape') % Exit
+                disp('Exit Program')
+                close all
+                samples = []; pulse_duration = []; freq = []; power = [];
+                return
             else
                 currkey=0;
             end
         end
     end
     
-    
+    if repeat == 1
+        continue;
+    end
     
     % recalculate original position
     if apriori
@@ -142,6 +163,9 @@ for i = 1:length(locs_ps)
     %        disp(r2)
     %    end
     %
+    
+    % If this point is reached all is good: move to the next pulse
+    i = i + 1;
 end
 
 
@@ -163,8 +187,8 @@ if show_plot(2)
     figure()
     plot(x, 'k'); hold on; plot(samples.active, x(samples.active), 'ro'); hold on;
     plot(samples.passive, x(samples.passive), 'bo');
-    k = waitforbuttonpress;
-    if k == 1
+    key_pressed = waitforbuttonpress;
+    if key_pressed == 1
         close all
     end
 end
