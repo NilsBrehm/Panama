@@ -14,6 +14,12 @@ for i = 3:length(listing)
 end
 
 %% Start Detection
+uiwait(helpdlg({'Press "c" to enter correction mode',...
+        'Press "z" to enter zoom mode', ...
+        'Press "p" show enlarged periodogram', ...
+        'Press "enter" to continue', ...
+        'Press "ESC" to exit'}, ...
+        'Welcome to the Pulse Detection Tool'));
 clc
 disp('Press "c" to enter correction mode')
 disp('Press "z" to enter zoom mode')
@@ -41,8 +47,8 @@ for k = 1:length(recs)
     thf = 7;
     th = thf*std(x);
     [locs_ps, ~] = peakseek(x, mpd, th);
-    ff = figure();
-    pos_fig = [500 500 800 600];
+    ff = figure(5);
+    pos_fig = [1000 500 800 600];
     set(ff, 'Color', 'white', 'position', pos_fig)
     plot(x, 'k')
     hold on
@@ -78,7 +84,7 @@ for k = 1:length(recs)
             currkey=0;
         end
     end
-    close all
+    % close all
     
     % Find Active and Passive Pulses and detect pulse duration
     th_factor = .5 ; % th = th_factor * mad(pulse)
@@ -148,12 +154,11 @@ for k = 1:length(recs)
     results = [results; re];
     call_stats{k, 1} = record;
     call_stats{k, 2} = abs(min(Peak)-max(Peak))/fs;
-    % save samples
-    %     mkdir([path, file(1:end-4)]);
-    %     filename = [path, file(1:end-4), '/', file(1:end-4)];
-    %     save([filename, '_samples.mat'],'samples')
-    %     disp('Samples saved')
-    %
+    
+    % Make Backup after every record is finished
+    save([rec_path , 'results.mat'], 'results')
+    save([rec_path , 'call_stats.mat'], 'call_stats')
+    
     disp([recs{k}, ' done'])
 end
 

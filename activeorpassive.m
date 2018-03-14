@@ -9,6 +9,7 @@ pulse_duration = zeros(1, length(locs_ps));
 freq = zeros(1, length(locs_ps));
 power = zeros(1, length(locs_ps));
 i = 1;
+
 while i <= length(locs_ps)
     pulse = x(locs_ps(i)-limit:locs_ps(i)+limit);
     if strcmp(method, 'diff')
@@ -21,8 +22,12 @@ while i <= length(locs_ps)
     [locsA, ~] = peakseek(pulse, 1, th);
     [locsP, ~] = peakseek(-pulse, 1, th);
     
-    pA = locsA(1);
-    pP = locsP(1);
+    try
+        pA = locsA(1);
+        pP = locsP(1);
+    catch
+        uiwait(warndlg('Unable to detect pulses, try to use different detection settings', 'Detection Error'));
+    end
     
     % 0 = active, 1 = passive
     if pA < pP
@@ -40,14 +45,18 @@ while i <= length(locs_ps)
     
     
     % Pulse Length
-    pulse_long = x(locs_ps(i)-limit:locs_ps(i)+limit+100);
-    env = envelope(pulse_long);
-    env_th = env_th_factor * mad(pulse_long, 1);
-    pulse_ends = find(env(peak_long:end) <= env_th);
-    pulse_stop = pulse_ends(1) + peak_long;
-    
-    pulse_duration(i) = abs(peak_long-pulse_stop);
-    
+    try
+        pulse_long = x(locs_ps(i)-limit:locs_ps(i)+limit+100);
+        env = envelope(pulse_long);
+        env_th = env_th_factor * mad(pulse_long, 1);
+        pulse_ends = find(env(peak_long:end) <= env_th);
+        pulse_stop = pulse_ends(1) + peak_long;
+        
+        pulse_duration(i) = abs(peak_long-pulse_stop);
+    catch
+        uiwait(warndlg('Pulse duration detection failed, try to use a different envelope threshold value',...
+            'Detection Error'));
+    end
     % Frequency Components
     [P1,f1] = periodogram(pulse_long,[],[],fs,'power');
     P1 = 10 * log10(P1); % to get db values
@@ -57,7 +66,7 @@ while i <= length(locs_ps)
     % Plot
     if show_plot(1)
         fig = figure(1);
-        pos_fig = [500 500 300 800];
+        pos_fig = [500 500 400 1000];
         set(fig, 'Color', 'white', 'position', pos_fig)
         % Plot Active Pulse Detection
         subplot(4, 1, 1)
@@ -90,7 +99,7 @@ while i <= length(locs_ps)
         subplot(4, 1, 3)
         plot(pulse_long);hold on; plot(env); hold on;
         plot([1, length(pulse_long)], [env_th, env_th], 'r--'); hold on;
-        plot(peak_long, pulse_long(peak_long), 'ro', 'MarkerSize', 6, 'MarkerFaceColor', 'k'); 
+        plot(peak_long, pulse_long(peak_long), 'ro', 'MarkerSize', 6, 'MarkerFaceColor', 'k');
         hold on;
         plot(pulse_stop, pulse_long(pulse_stop), 'ko', 'MarkerSize', 6, 'MarkerFaceColor', 'r')
         xlabel('Samples')
@@ -105,6 +114,19 @@ while i <= length(locs_ps)
         title('')
         hold off
         
+        figure(5)
+        hold off
+        plot(x, 'k')
+        hold on
+        plot(locs_ps(i), x(locs_ps(i)), 'mo', 'MarkerSize', 8, 'MarkerFaceColor', 'm')
+        if i > 1
+            hold on
+            cc = peaks(2, i-1)+1;
+            ccolor = {'ro', 'bo'};
+            plot(locs_ps(i-1), x(locs_ps(i-1)), ccolor{cc}, 'MarkerSize', 8)
+        end
+        
+        
         % do not move on until enter key is pressed
         currkey=0;
         repeat = 0;
@@ -112,6 +134,9 @@ while i <= length(locs_ps)
             pause; % wait for a keypress
             currkey=get(gcf,'CurrentKey');
             if strcmp(currkey, 'return') % All good
+                currkey=1;
+            elseif strcmp(currkey, 'r') % One pulse back
+                repeat = 2;
                 currkey=1;
             elseif strcmp(currkey, 'c') % Enter Correction Mode
                 prompt = {'Threshold Factor:','Limit:','Envelope Threshold Factor'};
@@ -132,7 +157,7 @@ while i <= length(locs_ps)
                 % plot(pulse_long, 'k')
                 plot(pulse_verylong);hold on; plot(50:length(env)+49, env); hold on;
                 plot([1, length(pulse_verylong)], [env_th, env_th], 'r--'); hold on;
-                plot(peak_long+50, pulse_verylong(peak_long+50), 'ro', 'MarkerSize', 10); 
+                plot(peak_long+50, pulse_verylong(peak_long+50), 'ro', 'MarkerSize', 10);
                 hold on;
                 plot(pulse_stop+50, pulse_verylong(pulse_stop+50), 'rx', 'MarkerSize', 10)
                 xlabel('Samples')
@@ -166,6 +191,11 @@ while i <= length(locs_ps)
     
     if repeat == 1
         continue;
+    elseif repeat == 2
+        if i-1 > 0
+            i = i-1;
+        end
+        continue
     end
     
     % recalculate original position
@@ -191,9 +221,9 @@ while i <= length(locs_ps)
     
     % If this point is reached all is good: move to the next pulse
     i = i + 1;
+    % uiwait(warndlg('Ups, something went wrong, try again.', 'Error'));
+       
 end
-
-
 
 % Apriori assumption that the first half of the call contains only active
 % pulses and the second half only passive pulses
@@ -209,14 +239,38 @@ else
 end
 
 if show_plot(2)
-    figure()
+    figure(5)
+    hold off
     plot(x, 'k'); hold on; plot(samples.active, x(samples.active), 'ro'); hold on;
     plot(samples.passive, x(samples.passive), 'bo');
-    key_pressed = waitforbuttonpress;
-    if key_pressed == 1
-        close all
+    hold off
+    close(figure(1))
+    % do not move on until enter key is pressed
+    currkey=0;
+    redo = 0;
+    while currkey~=1
+        pause; % wait for a keypress
+        currkey=get(gcf,'CurrentKey');
+        if strcmp(currkey, 'return') % All good
+            currkey=1;
+        elseif strcmp(currkey, 'r') % Go back and do it again
+            redo = 1;
+            currkey=1;
+        elseif strcmp(currkey, 'escape') % Exit
+            disp('Exit Program')
+            close all
+            samples = []; pulse_duration = []; freq = []; power = [];
+            return
+        else
+            currkey=0;
+        end
     end
 end
 
+if redo == 1
+    [samples, pulse_duration, freq, power] = activeorpassive(x, th_factor,...
+        locs_ps, fs, limit, env_th_factor, filter_pulse, method, apriori, ...
+        show_plot);
+end
 
 end
