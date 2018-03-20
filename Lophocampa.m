@@ -14,6 +14,7 @@ for i = 3:length(listing)
 end
 
 %% Start Detection
+crashed = 0;
 uiwait(helpdlg({'Press "c" to enter correction mode',...
         'Press "z" to enter zoom mode', ...
         'Press "p" show enlarged periodogram', ...
@@ -27,8 +28,10 @@ disp('Press "p" show enlarged periodogram')
 disp('Press "enter" to continue')
 disp('Press "ESC" to exit')
 
-results = [];
-call_stats = cell(length(recs), 2);
+if crashed == 0
+    results = [];
+    call_stats = cell(length(recs), 2);
+end
 for k = 1:length(recs)
     % Open data
     path_linux = [rec_path, recs{k}];
@@ -53,6 +56,7 @@ for k = 1:length(recs)
     plot(x, 'k')
     hold on
     plot(locs_ps, x(locs_ps), 'mx', 'MarkerSize', 10)
+    title(recs{k}, 'Interpreter', 'None')
     
     currkey=0;
     % do not move on until enter key is pressed
@@ -88,14 +92,15 @@ for k = 1:length(recs)
     
     % Find Active and Passive Pulses and detect pulse duration
     th_factor = .5 ; % th = th_factor * mad(pulse)
-    limit = 20;
+    limit_left = 20;
+    limit_right = 20;
     env_th_factor = 1;
     filter_pulse = false;
     show = [true, true];
     method = 'raw';
     apriori = false; % assumption that first half is active and second is passive
     [samples, pulse_duration, freq, power] = activeorpassive(x, th_factor,...
-        locs_ps, fs, limit, env_th_factor, filter_pulse, method, apriori, show);
+        locs_ps, fs, limit_left, limit_right, env_th_factor, filter_pulse, method, apriori, show);
 %     disp(['active ', num2str(length(samples.active))])
 %     disp(['passive ', num2str(length(samples.passive))])
     if isempty(samples)
@@ -139,7 +144,7 @@ for k = 1:length(recs)
     
     % Put all call statistics in one table
     record = convertCharsToStrings(recs{k});
-    re = cell(length(Peak), 6);
+    re = cell(length(Peak), 8);
     for q = 1:length(Peak)
         %call_stats = table(record, q, pulse_duration(q), freq(1), power(q), 'VariableNames', VarNames);
         %results = [results; call_stats];
@@ -149,6 +154,8 @@ for k = 1:length(recs)
         re{q, 4} = freq(q)/1000;
         re{q, 5} = power(q);
         re{q, 6} = phase(q);
+        re{q, 7} = (Peak(q) / fs) * 1000;
+        re{q, 8} = Peak(q);
     end
     
     results = [results; re];
@@ -165,6 +172,20 @@ end
 % Make Table
 VarNames = {'Recording', 'PulseNr', 'Duration', 'Frequency', 'Power', 'Phase'};
 T = cell2table(results, 'VariableNames', VarNames);
+
+%% Compute Intervals
+for j = 1:length(recs)
+    ids = find([results{:, 1}] == recs{j});
+    pulse_number = length(ids);
+    durs = results{ids, 3};
+    cdur = call_stats{ids, 2};
+end
+
+%% Error Handling
+clc
+last_rec = recs{k};
+disp('Program crashed:')
+disp(['Set k to ', num2str(k), ' (', recs{k}, ')'])
 
 %% Ersatzbank
 % %% Open data

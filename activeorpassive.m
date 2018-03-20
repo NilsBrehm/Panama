@@ -1,4 +1,4 @@
-function [samples, pulse_duration, freq, power] = activeorpassive(x, th_factor, locs_ps, fs, limit, env_th_factor, filter_pulse, method, apriori, show_plot)
+function [samples, pulse_duration, freq, power] = activeorpassive(x, th_factor, locs_ps, fs, limit_left, limit_right, env_th_factor, filter_pulse, method, apriori, show_plot)
 
 
 % Find Start of Pulse and discriminate between active and passive
@@ -11,7 +11,7 @@ power = zeros(1, length(locs_ps));
 i = 1;
 
 while i <= length(locs_ps)
-    pulse = x(locs_ps(i)-limit:locs_ps(i)+limit);
+    pulse = x(locs_ps(i)-limit_left:locs_ps(i)+limit_right);
     if strcmp(method, 'diff')
         pulse = diff(pulse);
     end
@@ -46,7 +46,7 @@ while i <= length(locs_ps)
     
     % Pulse Length
     try
-        pulse_long = x(locs_ps(i)-limit:locs_ps(i)+limit+100);
+        pulse_long = x(locs_ps(i)-limit_left:locs_ps(i)+limit_right+100);
         env = envelope(pulse_long);
         env_th = env_th_factor * mad(pulse_long, 1);
         pulse_ends = find(env(peak_long:end) <= env_th);
@@ -64,9 +64,11 @@ while i <= length(locs_ps)
     freq(i) = f1(b);
     
     % Plot
+    
     if show_plot(1)
+        try
         fig = figure(1);
-        pos_fig = [500 500 400 1000];
+        pos_fig = [200 500 400 1000];
         set(fig, 'Color', 'white', 'position', pos_fig)
         % Plot Active Pulse Detection
         subplot(4, 1, 1)
@@ -125,7 +127,11 @@ while i <= length(locs_ps)
             ccolor = {'ro', 'bo'};
             plot(locs_ps(i-1), x(locs_ps(i-1)), ccolor{cc}, 'MarkerSize', 8)
         end
-        
+        catch
+            uiwait(warndlg('Something went wrong during plotting, please try again using different settings',...
+            'Plotting Error'));
+            hold off
+        end
         
         % do not move on until enter key is pressed
         currkey=0;
@@ -139,18 +145,19 @@ while i <= length(locs_ps)
                 repeat = 2;
                 currkey=1;
             elseif strcmp(currkey, 'c') % Enter Correction Mode
-                prompt = {'Threshold Factor:','Limit:','Envelope Threshold Factor'};
+                prompt = {'Threshold Factor:','Limit Left:','Limit Right:','Envelope Threshold Factor'};
                 dlg_title = 'Detection Settings';
                 num_lines = 1;
-                defaultans = {num2str(th_factor), num2str(limit), num2str(env_th_factor)};
+                defaultans = {num2str(th_factor), num2str(limit_left), num2str(limit_right), num2str(env_th_factor)};
                 answer = inputdlg(prompt,dlg_title,num_lines,defaultans);
-                limit = str2double(answer{2});
+                limit_left = str2double(answer{2});
+                limit_right = str2double(answer{3});
                 th_factor = str2double(answer{1});
-                env_th_factor = str2double(answer{3});
+                env_th_factor = str2double(answer{4});
                 currkey=1;
                 repeat = 1;
             elseif strcmp(currkey, 'z') % Enter Zoom Mode
-                pulse_verylong = x(locs_ps(i)-(limit+50):locs_ps(i)+limit+150);
+                pulse_verylong = x(locs_ps(i)-(limit_left+50):locs_ps(i)+limit_right+150);
                 fig2 = figure(3);
                 pos_fig = [500 500 800 600];
                 set(fig2, 'Color', 'white', 'position', pos_fig)
@@ -200,10 +207,10 @@ while i <= length(locs_ps)
     
     % recalculate original position
     if apriori
-        found_pulses(1, i) = locs_ps(i) - ((limit+1) - pA);
-        found_pulses(2, i) = locs_ps(i) - ((limit+1) - pP);
+        found_pulses(1, i) = locs_ps(i) - ((limit_left+1) - pA);
+        found_pulses(2, i) = locs_ps(i) - ((limit_left+1) - pP);
     else
-        found_pulses(1, i) = locs_ps(i) - ((limit+1) - peaks(1, i));
+        found_pulses(1, i) = locs_ps(i) - ((limit_left+1) - peaks(1, i));
         found_pulses(2, i) = peaks(2, i);
     end
     %    % CrosCorrleation with Sinus
@@ -269,7 +276,7 @@ end
 
 if redo == 1
     [samples, pulse_duration, freq, power] = activeorpassive(x, th_factor,...
-        locs_ps, fs, limit, env_th_factor, filter_pulse, method, apriori, ...
+        locs_ps, fs, limit_left, limit_right, env_th_factor, filter_pulse, method, apriori, ...
         show_plot);
 end
 
