@@ -1,4 +1,4 @@
-function [samples, pulse_duration, freq, power] = activeorpassive(x, th_factor, locs_ps, fs, limit_left, limit_right, env_th_factor, filter_pulse, method, apriori, show_plot)
+function [samples, pulse_duration, freq, freq_range, power] = activeorpassive(x, th_factor, locs_ps, fs, limit_left, limit_right, env_th_factor, filter_pulse, method, apriori, show_plot)
 
 
 % Find Start of Pulse and discriminate between active and passive
@@ -7,6 +7,7 @@ peaks = zeros(2, length(locs_ps));
 found_pulses = zeros(1, length(locs_ps));
 pulse_duration = zeros(1, length(locs_ps));
 freq = zeros(1, length(locs_ps));
+freq_range = zeros(length(locs_ps), 2);
 power = zeros(1, length(locs_ps));
 i = 1;
 
@@ -58,11 +59,19 @@ while i <= length(locs_ps)
             'Detection Error'));
     end
     % Frequency Components
-    [P1,f1] = periodogram(pulse_long,[],[],fs,'power');
+    try
+    pulse_freq = pulse_long(peak_long-5:pulse_stop);
+    [P1,f1] = periodogram(pulse_freq,[],512,fs,'power');
     P1 = 10 * log10(P1); % to get db values
     [power(i), b] = max(P1);
     freq(i) = f1(b);
-    
+    ff = f1(P1 >= mean(P1)+std(P1));
+    freq_range(i, 1) = min(ff) / 1000;
+    freq_range(i, 2) = max(ff) / 1000;
+    catch
+         uiwait(warndlg('Error in Frequency Analysis, please try different settings',...
+            'Frequency Error'));
+    end
     % Plot
     
     if show_plot(1)
@@ -71,7 +80,7 @@ while i <= length(locs_ps)
         pos_fig = [200 500 400 1000];
         set(fig, 'Color', 'white', 'position', pos_fig)
         % Plot Active Pulse Detection
-        subplot(4, 1, 1)
+        subplot(5, 1, 1)
         plot(pulse)
         hold on
         plot(locsA, pulse(locsA), 'ko')
@@ -85,7 +94,7 @@ while i <= length(locs_ps)
         hold off
         
         % Plot Passive Pulse Detection
-        subplot(4, 1, 2)
+        subplot(5, 1, 2)
         plot(pulse)
         hold on
         plot(locsP, pulse(locsP), 'ko')
@@ -98,7 +107,7 @@ while i <= length(locs_ps)
         hold off
         
         % Plot Envelope to show pulse duration estimate
-        subplot(4, 1, 3)
+        subplot(5, 1, 3)
         plot(pulse_long);hold on; plot(env); hold on;
         plot([1, length(pulse_long)], [env_th, env_th], 'r--'); hold on;
         plot(peak_long, pulse_long(peak_long), 'ro', 'MarkerSize', 6, 'MarkerFaceColor', 'k');
@@ -109,11 +118,22 @@ while i <= length(locs_ps)
         hold off
         
         % Plot Power vs Frequency
-        subplot(4, 1, 4)
-        periodogram(pulse_long,[],[],fs,'power')
+        subplot(5, 1, 4)
+        periodogram(pulse_freq,[],512,fs,'power')
         hold on
         plot(f1(b)/1000, P1(b), 'ro')
+        hold on
+        plot([freq_range(i, 1), freq_range(i, 1)],[min(P1), max(P1)] , 'r--')
+        hold on
+        plot([freq_range(i, 2), freq_range(i, 2)],[min(P1), max(P1)] , 'r--')
         title('')
+        xlim([0 200])
+        %set(gca, 'XScale', 'log')
+        hold off
+        
+        % Plot Spectrogram
+        subplot(5, 1 ,5)
+        compute_spectrogram(pulse_freq, fs, P1)
         hold off
         
         figure(5)
@@ -234,6 +254,11 @@ end
 
 % Apriori assumption that the first half of the call contains only active
 % pulses and the second half only passive pulses
+if isempty(found_pulses)
+    disp('No Pulses were found and recording was dismissed')
+    samples = []; pulse_duration = []; freq = []; power = [];
+    return
+end
 if apriori
     s = sort(found_pulses(1,:));
     d = diff(s);
@@ -259,6 +284,8 @@ if show_plot(2)
         pause; % wait for a keypress
         currkey=get(gcf,'CurrentKey');
         if strcmp(currkey, 'return') % All good
+%             figure(5)
+%             title('Press "n" to redo pulse detection')
             currkey=1;
         elseif strcmp(currkey, 'r') % Go back and do it again
             redo = 1;
