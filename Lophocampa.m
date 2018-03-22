@@ -2,9 +2,10 @@
 clear
 clc
 close all
-base_path = '/media/brehm/Data/Panama/DataForPaper/Lophocampa/';
-animal = 'Pk1026 m (N=23; noch mehr drin)';
-species = '9488';
+% base_path = '/media/brehm/Data/Panama/DataForPaper/Lophocampa/';
+base_path = '/media/brehm/Data/Panama/DataForPaper/Melese_incertus/';
+animal = 'MittenDrin';
+species = 'backup';
 rec_path = [base_path, species, '/', animal, '/'];
 listing = dir(rec_path);
 recs = {};
@@ -17,7 +18,7 @@ for i = 3:length(listing)
 end
 
 %% Start Detection
-filter_signal = 'off';
+filter_signal = 'on';
 crashed = 0;
 uiwait(helpdlg({'Press "c" to enter correction mode',...
         'Press "z" to enter zoom mode', ...

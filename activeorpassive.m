@@ -58,22 +58,29 @@ while i <= length(locs_ps)
         uiwait(warndlg('Pulse duration detection failed, try to use a different envelope threshold value',...
             'Detection Error'));
     end
+    
     % Frequency Components
     try
     pulse_freq = pulse_long(peak_long-5:pulse_stop);
-    [P1,f1] = periodogram(pulse_freq,[],512,fs,'power');
-    P1 = 10 * log10(P1); % to get db values
+    [Pd,f1] = periodogram(pulse_freq,[],512,fs,'power');
+    [pos, maxpower] = peakseek(Pd, 10, mean(Pd));
+    maxfreqs = f1(pos);
+    %ll = [max(maxpower), max(maxpower(maxpower<max(maxpower)))];
+    %maxfreqs = [maxfreqs(maxpower == ll(1)), maxfreqs(maxpower == ll(2))];
+    %maxpower = ll;
+    P1 = 10 * log10(Pd); % to get db values
     [power(i), b] = max(P1);
     freq(i) = f1(b);
     ff = f1(P1 >= mean(P1)+std(P1));
     freq_range(i, 1) = min(ff) / 1000;
     freq_range(i, 2) = max(ff) / 1000;
+   
     catch
          uiwait(warndlg('Error in Frequency Analysis, please try different settings',...
             'Frequency Error'));
     end
-    % Plot
     
+    % Plot
     if show_plot(1)
         try
         fig = figure(1);
@@ -126,9 +133,11 @@ while i <= length(locs_ps)
         plot([freq_range(i, 1), freq_range(i, 1)],[min(P1), max(P1)] , 'r--')
         hold on
         plot([freq_range(i, 2), freq_range(i, 2)],[min(P1), max(P1)] , 'r--')
+        hold on
+        plot(maxfreqs/1000, 10 * log10(maxpower), 'bo')
         title('')
         xlim([0 200])
-        %set(gca, 'XScale', 'log')
+        set(gca, 'YScale', 'log')
         hold off
         
         % Plot Spectrogram
