@@ -2,10 +2,10 @@
 clear
 clc
 close all
-animal = 'X51456 m (N=35; nur bis 0007 angeschaut)';
-species = '8016';
-% rec_path = '/media/brehm/Data/Panama/DataForPaper/Lophocampa/8016/X51241 m (N=28)/';
-rec_path = ['/media/brehm/Data/Panama/DataForPaper/Lophocampa/', species, '/', animal, '/'];
+base_path = '/media/brehm/Data/Panama/DataForPaper/Lophocampa/';
+animal = 'Pk1026 m (N=23; noch mehr drin)';
+species = '9488';
+rec_path = [base_path, species, '/', animal, '/'];
 listing = dir(rec_path);
 recs = {};
 count = 1;
@@ -17,12 +17,17 @@ for i = 3:length(listing)
 end
 
 %% Start Detection
+filter_signal = 'off';
 crashed = 0;
 uiwait(helpdlg({'Press "c" to enter correction mode',...
         'Press "z" to enter zoom mode', ...
         'Press "p" show enlarged periodogram', ...
         'Press "enter" to continue', ...
-        'Press "ESC" to exit'}, ...
+        'Press "r" to go back', ...
+        'Press "n" to redo pulse detection', ...
+        'Press "ESC" to exit', ...
+        '',...
+        ['Filter is ', filter_signal]}, ...
         'Welcome to the Pulse Detection Tool'));
 clc
 disp('Press "c" to enter correction mode')
@@ -46,7 +51,12 @@ while k <= length(recs)
     % Filter Data
     fs = 480 * 1000;
     samplingrate = fs;
-    x = bandpassfilter_data(data, 4000, 150*1000, 2, fs, true, true);
+    if strcmp(filter_signal, 'on')
+        x = bandpassfilter_data(data, 4000, 150*1000, 1, fs, true, true);
+    else
+        % Only remove DC
+        x = data - mean(data);
+    end
     % Parameters
     show_plot = true;
     
@@ -97,10 +107,10 @@ while k <= length(recs)
     % close all
     
     % Find Active and Passive Pulses and detect pulse duration
-    th_factor = .5 ; % th = th_factor * mad(pulse)
-    limit_left = 20;
-    limit_right = 20;
-    env_th_factor = 1;
+    th_factor = 0.4 ; % th = th_factor * mad(pulse)
+    limit_left = 40;
+    limit_right = 60;
+    env_th_factor = 0.6;
     filter_pulse = false;
     show = [true, true];
     method = 'raw';
