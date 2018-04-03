@@ -61,104 +61,104 @@ while i <= length(locs_ps)
     
     % Frequency Components
     try
-    pulse_freq = pulse_long(peak_long-5:pulse_stop);
-    [Pd,f1] = periodogram(pulse_freq,[],512,fs,'power');
-    [pos, maxpower] = peakseek(Pd, 10, mean(Pd));
-    maxfreqs = f1(pos);
-    %ll = [max(maxpower), max(maxpower(maxpower<max(maxpower)))];
-    %maxfreqs = [maxfreqs(maxpower == ll(1)), maxfreqs(maxpower == ll(2))];
-    %maxpower = ll;
-    P1 = 10 * log10(Pd); % to get db values
-    [power(i), b] = max(P1);
-    freq(i) = f1(b);
-    ff = f1(P1 >= mean(P1)+std(P1));
-    freq_range(i, 1) = min(ff) / 1000;
-    freq_range(i, 2) = max(ff) / 1000;
-   
+        pulse_freq = pulse_long(peak_long-5:pulse_stop);
+        [Pd,f1] = periodogram(pulse_freq,[],512,fs,'power');
+        [pos, maxpower] = peakseek(Pd, 10, mean(Pd));
+        maxfreqs = f1(pos);
+        %ll = [max(maxpower), max(maxpower(maxpower<max(maxpower)))];
+        %maxfreqs = [maxfreqs(maxpower == ll(1)), maxfreqs(maxpower == ll(2))];
+        %maxpower = ll;
+        P1 = 10 * log10(Pd); % to get db values
+        [power(i), b] = max(P1);
+        freq(i) = f1(b);
+        ff = f1(P1 >= mean(P1)+std(P1));
+        freq_range(i, 1) = min(ff) / 1000;
+        freq_range(i, 2) = max(ff) / 1000;
+        
     catch
-         uiwait(warndlg('Error in Frequency Analysis, please try different settings',...
+        uiwait(warndlg('Error in Frequency Analysis, please try different settings',...
             'Frequency Error'));
     end
     
     % Plot
     if show_plot(1)
         try
-        fig = figure(1);
-        pos_fig = [200 500 400 1000];
-        set(fig, 'Color', 'white', 'position', pos_fig)
-        % Plot Active Pulse Detection
-        subplot(5, 1, 1)
-        plot(pulse)
-        hold on
-        plot(locsA, pulse(locsA), 'ko')
-        hold on
-        plot(pA, pulse(pA), 'ro')
-        hold on
-        plot([1, length(pulse)], [th, th], 'r--')
-        title(['Set to ', tlt])
-        ylabel('Amplitude')
-        xlabel('Samples')
-        hold off
-        
-        % Plot Passive Pulse Detection
-        subplot(5, 1, 2)
-        plot(pulse)
-        hold on
-        plot(locsP, pulse(locsP), 'ko')
-        hold on
-        plot(pP, pulse(pP), 'bo')
-        hold on
-        plot([1, length(pulse)], [-th, -th], 'r--')
-        xlabel('Samples')
-        ylabel('Amplitude')
-        hold off
-        
-        % Plot Envelope to show pulse duration estimate
-        subplot(5, 1, 3)
-        plot(pulse_long);hold on; plot(env); hold on;
-        plot([1, length(pulse_long)], [env_th, env_th], 'r--'); hold on;
-        plot(peak_long, pulse_long(peak_long), 'ro', 'MarkerSize', 6, 'MarkerFaceColor', 'k');
-        hold on;
-        plot(pulse_stop, pulse_long(pulse_stop), 'ko', 'MarkerSize', 6, 'MarkerFaceColor', 'r')
-        xlabel('Samples')
-        ylabel('Amplitude')
-        hold off
-        
-        % Plot Power vs Frequency
-        subplot(5, 1, 4)
-        periodogram(pulse_freq,[],512,fs,'power')
-        hold on
-        plot(f1(b)/1000, P1(b), 'ro')
-        hold on
-        plot([freq_range(i, 1), freq_range(i, 1)],[min(P1), max(P1)] , 'r--')
-        hold on
-        plot([freq_range(i, 2), freq_range(i, 2)],[min(P1), max(P1)] , 'r--')
-        hold on
-        plot(maxfreqs/1000, 10 * log10(maxpower), 'bo')
-        title('')
-        xlim([0 200])
-        set(gca, 'YScale', 'log')
-        hold off
-        
-        % Plot Spectrogram
-        subplot(5, 1 ,5)
-        compute_spectrogram(pulse_freq, fs, P1)
-        hold off
-        
-        figure(5)
-        hold off
-        plot(x, 'k')
-        hold on
-        plot(locs_ps(i), x(locs_ps(i)), 'mo', 'MarkerSize', 8, 'MarkerFaceColor', 'm')
-        if i > 1
+            fig = figure(1);
+            pos_fig = [200 500 400 1000];
+            set(fig, 'Color', 'white', 'position', pos_fig)
+            % Plot Active Pulse Detection
+            subplot(5, 1, 1)
+            plot(pulse)
             hold on
-            cc = peaks(2, i-1)+1;
-            ccolor = {'ro', 'bo'};
-            plot(locs_ps(i-1), x(locs_ps(i-1)), ccolor{cc}, 'MarkerSize', 8)
-        end
+            plot(locsA, pulse(locsA), 'ko')
+            hold on
+            plot(pA, pulse(pA), 'ro')
+            hold on
+            plot([1, length(pulse)], [th, th], 'r--')
+            title(['Set to ', tlt])
+            ylabel('Amplitude')
+            xlabel('Samples')
+            hold off
+            
+            % Plot Passive Pulse Detection
+            subplot(5, 1, 2)
+            plot(pulse)
+            hold on
+            plot(locsP, pulse(locsP), 'ko')
+            hold on
+            plot(pP, pulse(pP), 'bo')
+            hold on
+            plot([1, length(pulse)], [-th, -th], 'r--')
+            xlabel('Samples')
+            ylabel('Amplitude')
+            hold off
+            
+            % Plot Envelope to show pulse duration estimate
+            subplot(5, 1, 3)
+            plot(pulse_long);hold on; plot(env); hold on;
+            plot([1, length(pulse_long)], [env_th, env_th], 'r--'); hold on;
+            plot(peak_long, pulse_long(peak_long), 'ro', 'MarkerSize', 6, 'MarkerFaceColor', 'k');
+            hold on;
+            plot(pulse_stop, pulse_long(pulse_stop), 'ko', 'MarkerSize', 6, 'MarkerFaceColor', 'r')
+            xlabel('Samples')
+            ylabel('Amplitude')
+            hold off
+            
+            % Plot Power vs Frequency
+            subplot(5, 1, 4)
+            periodogram(pulse_freq,[],512,fs,'power')
+            hold on
+            plot(f1(b)/1000, P1(b), 'ro')
+            hold on
+            plot([freq_range(i, 1), freq_range(i, 1)],[min(P1), max(P1)] , 'r--')
+            hold on
+            plot([freq_range(i, 2), freq_range(i, 2)],[min(P1), max(P1)] , 'r--')
+            hold on
+            plot(maxfreqs/1000, 10 * log10(maxpower), 'bo')
+            title('')
+            xlim([0 200])
+            set(gca, 'YScale', 'log')
+            hold off
+            
+            % Plot Spectrogram
+            subplot(5, 1 ,5)
+            compute_spectrogram(pulse_freq, fs, P1)
+            hold off
+            
+            figure(5)
+            hold off
+            plot(x, 'k')
+            hold on
+            plot(locs_ps(i), x(locs_ps(i)), 'mo', 'MarkerSize', 8, 'MarkerFaceColor', 'm')
+            if i > 1
+                hold on
+                cc = peaks(2, i-1)+1;
+                ccolor = {'ro', 'bo'};
+                plot(locs_ps(i-1), x(locs_ps(i-1)), ccolor{cc}, 'MarkerSize', 8)
+            end
         catch
             uiwait(warndlg('Something went wrong during plotting, please try again using different settings',...
-            'Plotting Error'));
+                'Plotting Error'));
             hold off
         end
         
@@ -223,7 +223,10 @@ while i <= length(locs_ps)
                 currkey=0;
             end
         end
+    else
+        repeat = 0;
     end
+    
     
     if repeat == 1
         continue;
@@ -258,7 +261,7 @@ while i <= length(locs_ps)
     % If this point is reached all is good: move to the next pulse
     i = i + 1;
     % uiwait(warndlg('Ups, something went wrong, try again.', 'Error'));
-       
+    
 end
 
 % Apriori assumption that the first half of the call contains only active
@@ -284,6 +287,7 @@ if show_plot(2)
     hold off
     plot(x, 'k'); hold on; plot(samples.active, x(samples.active), 'ro'); hold on;
     plot(samples.passive, x(samples.passive), 'bo');
+    title(['A: ', num2str(length(samples.active)), ' and ', 'P: ', num2str(length(samples.passive))])
     hold off
     close(figure(1))
     % do not move on until enter key is pressed
@@ -293,10 +297,19 @@ if show_plot(2)
         pause; % wait for a keypress
         currkey=get(gcf,'CurrentKey');
         if strcmp(currkey, 'return') % All good
-%             figure(5)
-%             title('Press "n" to redo pulse detection')
+            %             figure(5)
+            %             title('Press "n" to redo pulse detection')
             currkey=1;
         elseif strcmp(currkey, 'r') % Go back and do it again
+            prompt = {'Threshold Factor:','Limit Left:','Limit Right:','Envelope Threshold Factor'};
+            dlg_title = 'Detection Settings';
+            num_lines = 1;
+            defaultans = {num2str(th_factor), num2str(limit_left), num2str(limit_right), num2str(env_th_factor)};
+            answer = inputdlg(prompt,dlg_title,num_lines,defaultans);
+            limit_left = str2double(answer{2});
+            limit_right = str2double(answer{3});
+            th_factor = str2double(answer{1});
+            env_th_factor = str2double(answer{4});
             redo = 1;
             currkey=1;
         elseif strcmp(currkey, 'escape') % Exit

@@ -3,9 +3,9 @@ clear
 clc
 close all
 % base_path = '/media/brehm/Data/Panama/DataForPaper/Lophocampa/';
-base_path = '/media/brehm/Data/Panama/DataForPaper/Melese_incertus/';
-animal = 'MittenDrin';
-species = 'backup';
+base_path = '/media/brehm/Data/MasterMoth/stimuli/';
+animal = 'moths';
+species = 'callseries';
 rec_path = [base_path, species, '/', animal, '/'];
 listing = dir(rec_path);
 recs = {};
@@ -19,17 +19,30 @@ end
 
 %% Start Detection
 filter_signal = 'on';
+add_to_left = true;
+skip_pulses = true;
 crashed = 0;
+
+% Default Peak Detection Parameters:
+mpd = 100;
+thf = 4;
+
+% Default Pulse Detection Parameters:
+th_factor = 1 ; % th = th_factor * mad(pulse)
+limit_left = 40;
+limit_right = 60;
+env_th_factor = 1;
+
 uiwait(helpdlg({'Press "c" to enter correction mode',...
-        'Press "z" to enter zoom mode', ...
-        'Press "p" show enlarged periodogram', ...
-        'Press "enter" to continue', ...
-        'Press "r" to go back', ...
-        'Press "n" to redo pulse detection', ...
-        'Press "ESC" to exit', ...
-        '',...
-        ['Filter is ', filter_signal]}, ...
-        'Welcome to the Pulse Detection Tool'));
+    'Press "z" to enter zoom mode', ...
+    'Press "p" show enlarged periodogram', ...
+    'Press "enter" to continue', ...
+    'Press "r" to go back', ...
+    'Press "n" to redo pulse detection', ...
+    'Press "ESC" to exit', ...
+    '',...
+    ['Filter is ', filter_signal]}, ...
+    'Welcome to the Pulse Detection Tool'));
 clc
 disp('Press "c" to enter correction mode')
 disp('Press "z" to enter zoom mode')
@@ -52,19 +65,23 @@ while k <= length(recs)
     % Filter Data
     fs = 480 * 1000;
     samplingrate = fs;
+    
     if strcmp(filter_signal, 'on')
         x = bandpassfilter_data(data, 4000, 150*1000, 1, fs, true, true);
     else
         % Only remove DC
         x = data - mean(data);
     end
+    
+    if add_to_left == true
+        x = [zeros(500, 1); x];
+    end
+    
     % Parameters
     show_plot = true;
     
     % Find peaks in recording
     % x = [zeros(200, 1); x];
-    mpd = 100;
-    thf = 4;
     th = thf*std(x);
     [locs_ps, ~] = peakseek(x, mpd, th);
     ff = figure(5);
@@ -74,6 +91,7 @@ while k <= length(recs)
     hold on
     plot(locs_ps, x(locs_ps), 'mx', 'MarkerSize', 10)
     title(recs{k}, 'Interpreter', 'None')
+    xlabel(['Found: ', num2str(length(locs_ps)), ' Pulses'])
     
     currkey=0;
     % do not move on until enter key is pressed
@@ -97,6 +115,8 @@ while k <= length(recs)
             plot(x, 'k')
             hold on
             plot(locs_ps, x(locs_ps), 'mx', 'MarkerSize', 10)
+            title(recs{k}, 'Interpreter', 'None')
+            xlabel(['Found: ', num2str(length(locs_ps)), ' Pulses'])
         elseif strcmp(currkey, 'escape')
             disp('Exit Program')
             close all
@@ -108,41 +128,56 @@ while k <= length(recs)
     % close all
     
     % Find Active and Passive Pulses and detect pulse duration
-    th_factor = 0.4 ; % th = th_factor * mad(pulse)
-    limit_left = 40;
-    limit_right = 60;
-    env_th_factor = 0.6;
+    
     filter_pulse = false;
-    show = [true, true];
+    if skip_pulses == true
+        show = [false, true];
+        prompt = {'Threshold Factor:','Limit Left:','Limit Right:','Envelope Threshold Factor'};
+        dlg_title = 'Detection Settings';
+        num_lines = 1;
+        defaultans = {num2str(th_factor), num2str(limit_left), num2str(limit_right), num2str(env_th_factor)};
+        answer = inputdlg(prompt,dlg_title,num_lines,defaultans);
+        limit_left = str2double(answer{2});
+        limit_right = str2double(answer{3});
+        th_factor = str2double(answer{1});
+        env_th_factor = str2double(answer{4});
+    else
+        show = [true, true];
+        th_factor = 0.4 ; % th = th_factor * mad(pulse)
+        limit_left = 40;
+        limit_right = 60;
+        env_th_factor = 0.6;
+        filter_pulse = false;
+    end
     method = 'raw';
     apriori = false; % assumption that first half is active and second is passive
     [samples, pulse_duration, freq, freq_range, power] = activeorpassive(x, th_factor,...
         locs_ps, fs, limit_left, limit_right, env_th_factor, filter_pulse, method, apriori, show);
     
     redo_pulse_detection = questdlg('Continue or Redo?', ...
-	'Recording finished', ...
-	'Continue','Redo', 'Continue');
+        'Recording finished', ...
+        'Continue','Redo', 'Continue');
     
-%     % do not move on until enter key is pressed
-%     currkey=0;
-%     redo_pulse_detection = 0;
-%     while currkey~=1
-%         pause; % wait for a keypress
-%         currkey=get(gcf,'CurrentKey');
-%         if strcmp(currkey, 'return')
-%             currkey=1;
-%         elseif strcmp(currkey, 'n') % Jump back to pulse detection
-%             redo_pulse_detection = 1;
-%             disp('Redo pulse detection')
-%             currkey=1;
-%         elseif strcmp(currkey, 'escape')
-%             disp('Exit Program')
-%             close all
-%             return
-%         else
-%             currkey=0;
-%         end
-%     end
+    %     % do not move on until enter key is pressed
+    %     currkey=0;
+    %     redo_pulse_detection = 0;
+    %     while currkey~=1
+    %         pause; % wait for a keypress
+    %         currkey=get(gcf,'CurrentKey');
+    %         if strcmp(currkey, 'return')
+    %             currkey=1;
+    %         elseif strcmp(currkey, 'n') % Jump back to pulse detection
+    %             redo_pulse_detection = 1;
+    %             disp('Redo pulse detection')
+    %             currkey=1;
+    %         elseif strcmp(currkey, 'escape')
+    %             disp('Exit Program')
+    %             close all
+    %             return
+    %         else
+    %             currkey=0;
+    %         end
+    %     end
     
     if strcmp(redo_pulse_detection, 'Redo')
         continue
@@ -168,7 +203,7 @@ while k <= length(recs)
     IPIs = (diff(Peak)/samplingrate)*1000;
     
     % Put all call statistics in one table
-    % Record Name | pulse number | duration | Freq | Freq Min | Freq Max | Power | Phase | Pulse Time | Sample | IPI | CallDur 
+    % Record Name | pulse number | duration | Freq | Freq Min | Freq Max | Power | Phase | Pulse Time | Sample | IPI | CallDur
     record = convertCharsToStrings(recs{k});
     re = cell(length(Peak), 12);
     for q = 1:length(Peak)
@@ -198,8 +233,10 @@ while k <= length(recs)
     call_stats{k, 2} = abs(min(Peak)-max(Peak))/fs;
     
     % Make Backup after every record is finished
-    save([rec_path , 'results.mat'], 'results')
-    save([rec_path , 'call_stats.mat'], 'call_stats')
+    mkdir([rec_path, recs{k}(1:end-4), '/']);
+    save([rec_path, recs{k}(1:end-4), '/results.mat'], 'results')
+    save([rec_path, recs{k}(1:end-4), '/call_stats.mat'], 'call_stats')
+    save([rec_path, recs{k}(1:end-4), '/samples.mat'], 'samples')
     
     disp([recs{k}, ' done'])
     k = k+1;
