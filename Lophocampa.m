@@ -3,9 +3,9 @@ clear
 clc
 close all
 % base_path = '/media/brehm/Data/Panama/DataForPaper/Lophocampa/';
-base_path = '/media/brehm/Data/MasterMoth/stimuli/';
-animal = 'moths';
-species = 'callseries';
+base_path = '/media/brehm/Data/MasterMoth/CallStats/';
+animal = 'naturalmothcalls';
+species = 'stimuli';
 rec_path = [base_path, species, '/', animal, '/'];
 listing = dir(rec_path);
 recs = {};
@@ -16,6 +16,28 @@ for i = 3:length(listing)
         count = count + 1;
     end
 end
+
+%% Recs that were used as stimuli
+recs = {'BCI1062_07x07.wav',
+                 'aclytia_gynamorpha_24x24.wav',
+                 'agaraea_semivitrea_07x07.wav',
+                 'carales_12x12_01.wav',
+                 'chrostosoma_thoracicum_05x05.wav',
+                 'creatonotos_01x01.wav',
+                 'elysius_conspersus_11x11.wav',
+                 'epidesma_oceola_06x06.wav',
+                 'eucereon_appunctata_13x13.wav',
+                 'eucereon_hampsoni_11x11.wav',
+                 'eucereon_obscurum_14x14.wav',
+                 'gl005_11x11.wav',
+                 'gl116_05x05.wav',
+                 'hypocladia_militaris_09x09.wav',
+                 'idalu_fasciipuncta_05x05.wav',
+                 'idalus_daga_18x18.wav',
+                 'melese_12x12_01_PK1297.wav',
+                 'neritos_cotes_10x10.wav',
+                 'ormetica_contraria_peruviana_09x09.wav',
+                 'syntrichura_12x12.wav'};
 
 %% Start Detection
 filter_signal = 'on';
@@ -56,18 +78,18 @@ if crashed == 0
 end
 all_samples = cell(1, length(recs));
 %for k = 1:length(recs)
-k = 1;
+k = 19;
 while k <= length(recs)
     % Open data
     path_linux = [rec_path, recs{k}];
-    [data, ~] = audioread(path_linux);
+    [data, fs_data] = audioread(path_linux);
     
     % Filter Data
-    fs = 480 * 1000;
+    fs = fs_data;
     samplingrate = fs;
     
     if strcmp(filter_signal, 'on')
-        x = bandpassfilter_data(data, 4000, 150*1000, 1, fs, true, true);
+        x = bandpassfilter_data(data, 4000, 125*1000, 1, fs, true, true);
     else
         % Only remove DC
         x = data - mean(data);
@@ -132,15 +154,17 @@ while k <= length(recs)
     filter_pulse = false;
     if skip_pulses == true
         show = [false, true];
-        prompt = {'Threshold Factor:','Limit Left:','Limit Right:','Envelope Threshold Factor'};
+        prompt = {'Threshold Factor:','Limit Left:','Limit Right:','Envelope Threshold Factor', 'Sampling Rate'};
         dlg_title = 'Detection Settings';
         num_lines = 1;
-        defaultans = {num2str(th_factor), num2str(limit_left), num2str(limit_right), num2str(env_th_factor)};
+        defaultans = {num2str(th_factor), num2str(limit_left), num2str(limit_right), num2str(env_th_factor), num2str(fs_data)};
         answer = inputdlg(prompt,dlg_title,num_lines,defaultans);
         limit_left = str2double(answer{2});
         limit_right = str2double(answer{3});
         th_factor = str2double(answer{1});
         env_th_factor = str2double(answer{4});
+        fs = str2double(answer{5});
+        samplingrate = fs;
     else
         show = [true, true];
         th_factor = 0.4 ; % th = th_factor * mad(pulse)
@@ -256,11 +280,26 @@ save([rec_path, 'complete_analysis.mat'])
 writetable(T,[rec_path, 'results.csv'])
 disp('All Data Saved')
 
-%% Error Handling
+%% Error Handling: Use this when program crashed
 clc
 last_rec = recs{k};
 disp('Program crashed:')
 disp(['Set k to ', num2str(k), ' (', recs{k}, ')'])
+
+%% When program crashed: Load all saved results.mat and combine them.
+% rr = cell(1, length(recs));
+% rr = [];
+% for i = 1:length(recs)
+%     pp = [rec_path, recs{i}(1:end-4)];
+%     aa = struct2array(load([pp, '/results']));
+%     rr = [rr; aa];
+% end
+% results = rr;
+kk1 = 18;  % Point before crahs occured
+kk2 = length(recs);  % Last recording
+crash1 = struct2array(load([rec_path, recs{kk1}(1:end-4), '/results']));
+crash2 = struct2array(load([rec_path, recs{kk2}(1:end-4), '/results']));
+results = [crash1; crash2];
 
 %% Ersatzbank
 % %% Open data

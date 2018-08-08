@@ -28,6 +28,8 @@ while i <= length(locs_ps)
         pP = locsP(1);
     catch
         uiwait(warndlg('Unable to detect pulses, try to use different detection settings', 'Detection Error'));
+        pA = 0;
+        pP = 0;
     end
     
     % 0 = active, 1 = passive
