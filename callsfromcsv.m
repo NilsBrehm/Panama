@@ -71,6 +71,17 @@ pnr_p = [];
 
 ITI = [];
 
+pd_a_py = cell(1, length(idx)-1);
+pd_p_py = cell(1, length(idx)-1);
+freq_a_py = cell(1, length(idx)-1);
+freq_p_py = cell(1, length(idx)-1);
+ipi_a_py = cell(1, length(idx)-1);
+ipi_p_py = cell(1, length(idx)-1);
+pnr_a_py = cell(1, length(idx)-1);
+pnr_p_py = cell(1, length(idx)-1);
+call_dur_py = cell(1, length(idx)-1);
+ITI_py = cell(1, length(idx)-1);
+
 for k=2:1:length(idx)
     % Get single call
     temp_call = results(idx(k-1)+1:idx(k),:);
@@ -79,6 +90,38 @@ for k=2:1:length(idx)
     idx_p = find(table2array(temp_call(:,8)) == 1);
     
     % Get Data from this call
+    % For PYTHON ----------------------------------------------------------
+    % pulse duration
+    pd_a_py{k-1} = table2array(temp_call(idx_a, 3));
+    pd_p_py{k-1} = table2array(temp_call(idx_p, 3));
+    % frequency
+    freq_a_py{k-1}= table2array(temp_call(idx_a, 4));
+    freq_p_py{k-1}= table2array(temp_call(idx_p, 4));
+    % inter pulse interval
+    a_dummy = table2array(temp_call(idx_a, 11));
+    if length(a_dummy) > 1
+        ipi_a_py{k-1} = a_dummy(1:end-1);
+    else
+        ipi_a_py{k-1} = a_dummy;
+    end
+    p_dummy = table2array(temp_call(idx_p, 11));
+    if length(p_dummy) > 1
+        ipi_p_py{k-1}= p_dummy(1:end-1);
+    else
+        ipi_p_py{k-1}= p_dummy;
+    end
+    % Pulse Number
+    pnr_a_py{k-1} = length(idx_a);
+    pnr_p_py{k-1} = length(idx_p);
+    % Call Duration
+    call_dur_py{k-1} = table2array(temp_call(end, 12));
+    
+    % ITI
+    abc = table2array(temp_call(idx_a, 11));
+    ITI_py{k-1} = abc(end);
+    
+    
+    % For MATLAB ----------------------------------------------------------
     % Pulse Duration
     pd_a= [pd_a; table2array(temp_call(idx_a, 3))];
     pd_a_id = [pd_a_id, zeros(1, length(table2array(temp_call(idx_a, 3))))+k-1];
@@ -184,6 +227,20 @@ T_p.Recording = names;
 writetable(T_a,'/media/brehm/Data/MasterMoth/CallStats_active.txt');
 writetable(T_p,'/media/brehm/Data/MasterMoth/CallStats_passive.txt');
 disp('Data saved')
+
+%% SAVE FOR PYTHON
+save('/media/brehm/Data/MasterMoth/CallStats/pd_a.mat', 'pd_a_py');
+save('/media/brehm/Data/MasterMoth/CallStats/pd_p.mat', 'pd_p_py');
+save('/media/brehm/Data/MasterMoth/CallStats/ipi_a.mat', 'ipi_a_py');
+save('/media/brehm/Data/MasterMoth/CallStats/ipi_p.mat', 'ipi_p_py');
+save('/media/brehm/Data/MasterMoth/CallStats/freq_a.mat', 'freq_a_py');
+save('/media/brehm/Data/MasterMoth/CallStats/freq_p.mat', 'freq_p_py');
+save('/media/brehm/Data/MasterMoth/CallStats/pnr_a.mat', 'pnr_a_py');
+save('/media/brehm/Data/MasterMoth/CallStats/pnr_p.mat', 'pnr_p_py');
+save('/media/brehm/Data/MasterMoth/CallStats/calldur.mat', 'call_dur_py');
+save('/media/brehm/Data/MasterMoth/CallStats/ITI.mat', 'ITI_py');
+
+disp('Saved data for PYTHON')
 
 %% BoxPlot AvsP
 fsize = 10;
