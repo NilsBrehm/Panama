@@ -1,4 +1,7 @@
 %% ANALYSIS PART ----------------------------------------------------------
+% This script computes pulse by pulse comparison
+
+% Copyright Nils Brehm 2018
 % -------------------------------------------------------------------------
 % Load Data
 clear

@@ -7,6 +7,9 @@ function [minMSE, shift] = shifted_MSE(active, passive, windowstart, windowend)
 %       windowstart: Starting point for analysis
 %       windowend: End point for analysis
 % returns: min. MSE and corresponding shift value
+% 
+% Copyright Nils Brehm 2017
+
 noPulsesA = size(active, 2);
 noPulsesP = size(passive, 2);
 minMSE = zeros(noPulsesA, noPulsesP);

@@ -1,5 +1,8 @@
 function plot_stuff(time, active, passive)
 % This function plots a cut out pulses
+% 
+% Copyright Nils Brehm 2018
+
 subplot(1,2,1)
 plot(time, active)
 title('Active Pulses')

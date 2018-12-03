@@ -1,5 +1,7 @@
 %% MOTH PULSE DETECTION
 % This script detects pulses and computes some simple statistics
+% 
+% Copyright Nils Brehm 2018
 
 %% Get names of recordings
 clear

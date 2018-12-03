@@ -1,5 +1,9 @@
 function [samples, pulse_duration, freq, freq_range, power] = activeorpassive(x, th_factor, locs_ps, fs, limit_left, limit_right, env_th_factor, filter_pulse, method, apriori, show_plot)
-
+% This function detects active and passive pulses
+% Be aware that this function interacts dynamically with the PulseDetection
+% interface
+% 
+% Copyright Nils Brehm 2018
 
 % Find Start of Pulse and discriminate between active and passive
 % The pulse need to be detected beforehand.
@@ -44,8 +48,6 @@ while i <= length(locs_ps)
         peak_long = pP;
         tlt = 'passive';
     end
-    
-    
     
     % Pulse Length
     try

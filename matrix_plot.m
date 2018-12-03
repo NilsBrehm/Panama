@@ -1,6 +1,7 @@
 function matrix_plot(input, noPulsesA, noPulsesP, colorbarlabel, labelx, labely, limit, showvalues)
 % This function creates a matrix plot using the Similarity Values in the
 % input matrix.
+% 
 % Copyright Nils Brehm 2017
 
 if nargin < 7

@@ -1,3 +1,9 @@
+%% Callseries To Single Calls
+% This script converts call series to single calls
+% Single calls must be cut out manually
+% 
+% Copyright Nils Brehm 2018
+
 %% Open data
 clear
 clc

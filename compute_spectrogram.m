@@ -1,4 +1,8 @@
 function compute_spectrogram(data, samplingrate, P1)
+% This function computes a spectorgram in the style of 'Selena'
+% 
+% Copyright Nils Brehm 2018
+
 % Spectrogram and Time Course
 % Load colormap
 load('/media/brehm/Data/Panama/code/Panama/selena_colormap.mat')

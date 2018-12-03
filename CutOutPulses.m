@@ -1,6 +1,9 @@
 function [time, pulses, envs, phas, repulses, reenvs, rephas]...
     = CutOutPulses(data, samples, pulsewindowstart, pulsewindowend, ...
     baseline, samplingrate)
+% This function cuts out single pulses from a single call
+% 
+% Copyright Francisco Cervantes Constantino and Nils Brehm 2018
 
 % noPulses=size(samples.active,2);
 % -------------------------------------------------------------------------
