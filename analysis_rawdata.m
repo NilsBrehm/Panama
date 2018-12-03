@@ -1,21 +1,25 @@
-function [time, pulses, envs, phas, repulses, reenvs, rephas, mat]...
+function [time, pulses, envs, phas, repulses, reenvs, rephas]...
     = analysis_rawdata(data, samples, pulsewindowstart, pulsewindowend, ...
-    windowstart, windowend, baseline, samplingrate)
+    baseline, samplingrate)
 
-noPulses=size(samples.active,2);
+% noPulses=size(samples.active,2);
 % -------------------------------------------------------------------------
 %time=1000*[-27:134]/256000;
 time=1000*[pulsewindowstart:pulsewindowend]/samplingrate;
 
-% Compute single pulses
-for ijk=1:length(samples.active);
-    temp(:,ijk)=data(samples.active(ijk)+pulsewindowstart:samples.active(ijk)+pulsewindowend);
-    temp(:,ijk)=temp(:,ijk)-mean(temp(1:baseline,ijk));
+% Compute active single pulses
+for i=1:length(samples.active)
+    temp(:,i)=data(samples.active(i)+pulsewindowstart:samples.active(i)+pulsewindowend);
+    % Remove y-offset
+    temp(:,i)=temp(:,i)-mean(temp(1:baseline,i));
 end
 pulses.active=temp;clear temp
-for ijk=1:length(samples.passive);
-    temp(:,ijk)=data(samples.passive(ijk)+pulsewindowstart:samples.passive(ijk)+pulsewindowend);
-    temp(:,ijk)=temp(:,ijk)-mean(temp(1:baseline,ijk));
+
+% Compute passive single pulses
+for i=1:length(samples.passive)
+    temp(:,i)=data(samples.passive(i)+pulsewindowstart:samples.passive(i)+pulsewindowend);
+    % Remove y-offset
+    temp(:,i)=temp(:,i)-mean(temp(1:baseline,i));
 end
 pulses.passive=temp;clear temp
 

@@ -1,12 +1,18 @@
+%% MOTH PULSE DETECTION
+% This script detects pulses and computes some simple statistics
+
 %% Get names of recordings
 clear
 clc
 close all
 % base_path = '/media/brehm/Data/Panama/DataForPaper/Lophocampa/';
-base_path = '/media/brehm/Data/MasterMoth/CallStats/';
-animal = 'naturalmothcalls';
-species = 'stimuli';
-rec_path = [base_path, species, '/', animal, '/'];
+base_path = '../../TEST/';
+% base_path = '/media/brehm/Data/MasterMoth/CallStats/';
+% animal = 'PK1297';
+species = 'Melese_incertus';
+% rec_path = [base_path, species, '/', animal, '/'];
+% rec_path = [base_path, species, '/', ];
+rec_path = [base_path, 'Pk12990020', '/'];
 listing = dir(rec_path);
 recs = {};
 count = 1;
@@ -18,6 +24,7 @@ for i = 3:length(listing)
 end
 
 %% Recs that were used as stimuli
+% Only for my master thesis
 recs = {'BCI1062_07x07.wav',
                  'aclytia_gynamorpha_24x24.wav',
                  'agaraea_semivitrea_07x07.wav',
@@ -41,8 +48,8 @@ recs = {'BCI1062_07x07.wav',
 
 %% Start Detection
 filter_signal = 'on';
-add_to_left = true;
-skip_pulses = true;
+add_to_left = false;
+skip_pulses = false;
 crashed = 0;
 
 % Default Peak Detection Parameters:
@@ -65,10 +72,21 @@ uiwait(helpdlg({'Press "c" to enter correction mode',...
     '',...
     ['Filter is ', filter_signal]}, ...
     'Welcome to the Pulse Detection Tool'));
+
+% Window for sampling rate
+prompt = {'Audio Sampling Rate (kHz):'};
+            dlg_title = 'Audio File Settings';
+            num_lines = 1;
+            defaultans = {num2str(480)};
+            answer = inputdlg(prompt,dlg_title,num_lines,defaultans);
+            fs = str2double(answer{1})*1000;
+            
 clc
 disp('Press "c" to enter correction mode')
 disp('Press "z" to enter zoom mode')
 disp('Press "p" show enlarged periodogram')
+disp('Press "r" to redo active/passive detection')
+disp('Press "n" to redo pulse detection')
 disp('Press "enter" to continue')
 disp('Press "ESC" to exit')
 
@@ -78,14 +96,15 @@ if crashed == 0
 end
 all_samples = cell(1, length(recs));
 %for k = 1:length(recs)
-k = 19;
+% DEFAULT: k=1, if program crashed set k to crash point
+k = 1;
 while k <= length(recs)
     % Open data
     path_linux = [rec_path, recs{k}];
     [data, fs_data] = audioread(path_linux);
     
     % Filter Data
-    fs = fs_data;
+%     fs = fs_data;
     samplingrate = fs;
     
     if strcmp(filter_signal, 'on')
@@ -274,7 +293,7 @@ VarNames = {'Recording', 'PulseNr', 'Duration', 'Frequency','FreqMin',...
 T = cell2table(results, 'VariableNames', VarNames);
 
 % Save all
-save([rec_path, 'complete_analysis.mat'])
+save([rec_path, 'complete_detection_analysis.mat'])
 
 % Save to csv
 writetable(T,[rec_path, 'results.csv'])

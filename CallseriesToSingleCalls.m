@@ -2,26 +2,31 @@
 clear
 clc
 close all
-[file,path] = uigetfile('/media/brehm/Data/Panama/data/new_carales_recs/Castur/PK1285/*.wav','select a wav file');
+base_path = '../../TEST/';
+[file,path] = uigetfile([base_path, '/*.wav'],'select a wav file');
 open(fullfile(path,file))
 
 samplingrate = 480 * 1000;
 
 %% Plot callseries
+% Please select start and end points of all single calls
+% Name start points:    cs01 ... csxx
+% Name end points:      ce01 ... cexx
 plot(data)
 
 %% Decompose the recording into single calls
 variablesInCurrentWorkspace = who;
-no_callstarts = sum(strncmp('cstart',variablesInCurrentWorkspace, 6));
-no_callends = sum(strncmp('cend',variablesInCurrentWorkspace, 4));
+no_callstarts = sum(strncmp('cs',variablesInCurrentWorkspace, 2));
+no_callends = sum(strncmp('ce',variablesInCurrentWorkspace, 2));
 callstarts = [];
 callends = [];
 for i = 1:no_callstarts
-    aa = "callstarts = [callstarts, cstart" +  num2str(i) + ".DataIndex]";
+    aa = "callstarts = [callstarts, cs" +  num2str(i) + ".DataIndex]";
     eval(aa);
-    bb = "callends = [callends, cend" +  num2str(i) + ".DataIndex]";
+    bb = "callends = [callends, ce" +  num2str(i) + ".DataIndex]";
     eval(bb);
 end
+clc
 
 %% Save Single Calls as wave files
 pathname = [path, file(1:end-4)];

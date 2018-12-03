@@ -1,50 +1,51 @@
 %% ANALYSIS PART ----------------------------------------------------------
 % -------------------------------------------------------------------------
+% Load Data
+clear
+clc
+close all
+base_path = '../../TEST/';
+
+% Select single call audio file
+[file,path] = uigetfile([base_path, '/*.wav'],'select a wav file');
+open(fullfile(path,file))
+
+load([path, file(1:end-4), '/samples.mat'])
+samplingrate = 480 * 1000;
+
 %% Choose analysis window
-disp(['min. pulse length: ', num2str(min(singlepulselength)), ' samples'])
-pulsewindowstart = 0;
+% disp(['min. pulse length: ', num2str(min(singlepulselength)), ' samples'])
 % ---------------------------------
-ms = 0.4;
+ms = 0.25; % estimate for pulse length in milliseconds
+start = -0.02; % start of pulse relative to peak detection in milliseconds
 % ---------------------------------
-% pulsewindowend = round(median(singlepulselength))-20;
-% pulsewindowend = round(min(singlepulselength))+30;
-pulsewindowend = round((ms/1000)*samplingrate)-60;
-windowstart = 1;
-% windowend = round(median(singlepulselength))-20;
-% windowend = round(min(singlepulselength))+30;
-windowend = round((ms/1000)*samplingrate)-60;
-baseline = 5;
+pulsewindowstart = round((start/1000)*samplingrate);
+pulsewindowend = round((ms/1000)*samplingrate);
+baseline = 5;  % Is used to align y values to zero (offset)
+
 % !!! SET CORRECT SAMPLING RATE !!! --------------------------------------
 % samplingrate = 480 * 1000;
 disp(['Used Sampling Rate: ', num2str(samplingrate/1000), ' kHz'])
+
 % =========================================================================
 % =========================================================================
 % Run Analysis Script:Cut out single pulses from recording
-[time, pulses, envs, phas, repulses, reenvs, rephas] = analysis_rawdata(data, samples, pulsewindowstart,...
-    pulsewindowend, windowstart, windowend, baseline, samplingrate);
+[time, pulses, envs, phas, repulses, reenvs, rephas] = ...
+    analysis_rawdata(data, samples, pulsewindowstart,...
+    pulsewindowend, baseline, samplingrate);
 
 noPulsesA = size(samples.active,2);
 noPulsesP = size(samples.passive,2);
 noPulses = max([noPulsesA, noPulsesP]);
 
 % Plot Raw Pulses to determine analysis window
-figure('units','normalized','outerposition',[0 0 1 1]);
-plot_stuff(time, pulses.active, pulses.passive, windowstart, windowend)
-
-figname = [filename, 'RawPulses', '.png'];
-export_fig(figname,'-m2')
-% pause(1)
-% close
-
-% Plot Raw Pulses to determine analysis window in SAMPLES:
-% figure('units','normalized','outerposition',[0 0 1 1]);
-% subplot(1,2,1)
-% plot(pulses.active)
-% subplot(1,2,2)
-% plot(pulses.passive)
-
+figure('units','normalized','outerposition',[0 0.5 1 0.5]);
+plot_stuff(time, pulses.active, pulses.passive)
 
 %% Cross Correlation
+windowstart = 1;
+windowend = length(pulses.active);
+
 [ccAP, MaxCorr_AP, BestLag_AP] = crosscorr(pulses.active, pulses.passive, windowstart, windowend, 'coeff');
 [ccAA, MaxCorr_AA, BestLag_AA] = crosscorr(pulses.active, pulses.active, windowstart, windowend, 'coeff');
 [ccPP, MaxCorr_PP, BestLag_PP] = crosscorr(pulses.passive, pulses.passive, windowstart, windowend, 'coeff');
@@ -68,6 +69,7 @@ export_fig(figname,'-m2')
 % [crosscorrelation_spc, MaxCorr_spc, BestLag_spc] = crosscorr(specpulses.active, specpulses.passive, windowstart, 60, 'coeff');
 
 % Save Data
+filename = [path, file(1:end-4), '/matrix_analysis'];
 save([filename, '.mat'])
 disp('Analysis done and data saved')
 
