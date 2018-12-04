@@ -12,9 +12,9 @@
 % Copyright Nils Brehm 2018
 
 %%
-% Use this to change the path:
-path = '/media/brehm/Data/Panama/DataForPaper/SingleExamples/Carales/';
-% filename = [path, file(1:end-4), '\'];
+% % Use this to change the path:
+% path = '/media/brehm/Data/Panama/DataForPaper/SingleExamples/Carales/';
+% % filename = [path, file(1:end-4), '\'];
 
 %% Plotting Parameters
 clc
@@ -99,7 +99,7 @@ spectrogram(data, window, noverlap, nfft, samplingrate, 'yaxis')
 xlim([0, tt(end)*1000])
 ylim([0 150])
 cl = colorbar('xlim', [-110 -40], 'Fontsize',10', 'FontName', fontfamlily);
-cl.Label.String = '[dB/Hz]';
+cl.Label.String = '[rel. dB]';
 % caxis([-100 -45])
 caxis([-100 -45]) % Use this to adjust coloring of spectrak plot
 % colorbar off
@@ -110,6 +110,14 @@ ylabel('Frequency [kHz]', 'fontsize', 10, 'FontName', fontfamlily)
 
 subplot(2,1,2)
 plot(tt*1000,data,'color', 'black')
+% hold on
+% for i = 1:noPulsesA
+%     plot((time(samples.active(i):samples.active(i)+5))/fs*1000, data(samples.active(i):samples.active(i)+5), 'r')
+% end
+% for i = 1:noPulsesP
+%     plot((time(samples.passive(i):samples.passive(i)+5))/fs*1000, data(samples.passive(i):samples.passive(i)+5), 'b')
+% end
+
 xlim([0, tt(end)*1000])
 set(gca, 'fontsize', 10, 'FontName', fontfamlily)
 xlabel('Time [ms]', 'FontSize', 10, 'FontName', fontfamlily)
@@ -126,7 +134,7 @@ end
 disp('finished Spectrogram Plot')
 
 %% Plot Active and Passive Pulses separately
-xlimit = 10;
+xlimit = 0;
 steps = 0.2;
 ymax = round(max(max(max(pulses.active)), max(max(pulses.passive))), 2);
 ymin = round(min(min(min(pulses.active)), min(min(pulses.passive))), 2);
@@ -231,6 +239,3 @@ end
 %% Save Data
 save([filename, file(1:end-4), '.mat'])
 disp('Plotting done and data saved')
-
-%%
-save([path, 'data.mat'])

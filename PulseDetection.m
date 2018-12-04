@@ -3,18 +3,18 @@
 % 
 % Copyright Nils Brehm 2018
 
-%% Get names of recordings
+%%
 clear
 clc
 close all
-% base_path = '/media/brehm/Data/Panama/DataForPaper/Lophocampa/';
-base_path = '../../TEST/';
-% base_path = '/media/brehm/Data/MasterMoth/CallStats/';
-% animal = 'PK1297';
-species = 'Melese_incertus';
-% rec_path = [base_path, species, '/', animal, '/'];
-% rec_path = [base_path, species, '/', ];
-rec_path = [base_path, 'Pk12990020', '/'];
+base_path = '../../Recordings/';
+species = 'Carales_astur';
+animal = 'PK1289';
+recnr = 'Pk12890007';
+
+rec_path = [base_path, species, '/', animal, '/', recnr, '/'];
+
+%% Get names of recordings
 listing = dir(rec_path);
 recs = {};
 count = 1;
@@ -24,29 +24,6 @@ for i = 3:length(listing)
         count = count + 1;
     end
 end
-
-%% Recs that were used as stimuli
-% Only for my master thesis
-recs = {'BCI1062_07x07.wav',
-                 'aclytia_gynamorpha_24x24.wav',
-                 'agaraea_semivitrea_07x07.wav',
-                 'carales_12x12_01.wav',
-                 'chrostosoma_thoracicum_05x05.wav',
-                 'creatonotos_01x01.wav',
-                 'elysius_conspersus_11x11.wav',
-                 'epidesma_oceola_06x06.wav',
-                 'eucereon_appunctata_13x13.wav',
-                 'eucereon_hampsoni_11x11.wav',
-                 'eucereon_obscurum_14x14.wav',
-                 'gl005_11x11.wav',
-                 'gl116_05x05.wav',
-                 'hypocladia_militaris_09x09.wav',
-                 'idalu_fasciipuncta_05x05.wav',
-                 'idalus_daga_18x18.wav',
-                 'melese_12x12_01_PK1297.wav',
-                 'neritos_cotes_10x10.wav',
-                 'ormetica_contraria_peruviana_09x09.wav',
-                 'syntrichura_12x12.wav'};
 
 %% Start Detection
 filter_signal = 'on';
@@ -178,7 +155,7 @@ while k <= length(recs)
         prompt = {'Threshold Factor:','Limit Left:','Limit Right:','Envelope Threshold Factor', 'Sampling Rate'};
         dlg_title = 'Detection Settings';
         num_lines = 1;
-        defaultans = {num2str(th_factor), num2str(limit_left), num2str(limit_right), num2str(env_th_factor), num2str(fs_data)};
+        defaultans = {num2str(th_factor), num2str(limit_left), num2str(limit_right), num2str(env_th_factor), num2str(fs)};
         answer = inputdlg(prompt,dlg_title,num_lines,defaultans);
         limit_left = str2double(answer{2});
         limit_right = str2double(answer{3});
@@ -283,6 +260,13 @@ while k <= length(recs)
     save([rec_path, recs{k}(1:end-4), '/call_stats.mat'], 'call_stats')
     save([rec_path, recs{k}(1:end-4), '/samples.mat'], 'samples')
     
+    % Save Call Stats as csv
+    VarNames = {'Recording', 'PulseNr', 'Duration', 'Frequency','FreqMin',...
+    'FreqMax', 'Power', 'Phase', 'PulseTime', 'PulseSample', 'IPI', 'CallDuration'};
+    TT = cell2table(re, 'VariableNames', VarNames);
+    % Save to csv
+    writetable(TT,[rec_path, recs{k}(1:end-4), '/DescriptiveCallStatistics.csv'])
+    
     disp([recs{k}, ' done'])
     k = k+1;
 end
@@ -298,7 +282,7 @@ T = cell2table(results, 'VariableNames', VarNames);
 save([rec_path, 'complete_detection_analysis.mat'])
 
 % Save to csv
-writetable(T,[rec_path, 'results.csv'])
+writetable(T,[rec_path, 'DescriptiveCallStatistics.csv'])
 disp('All Data Saved')
 
 %% Error Handling: Use this when program crashed
@@ -323,6 +307,29 @@ crash2 = struct2array(load([rec_path, recs{kk2}(1:end-4), '/results']));
 results = [crash1; crash2];
 
 %% Ersatzbank
+% Recs that were used as stimuli
+% Only for my master thesis
+% recs = {'BCI1062_07x07.wav',
+%                  'aclytia_gynamorpha_24x24.wav',
+%                  'agaraea_semivitrea_07x07.wav',
+%                  'carales_12x12_01.wav',
+%                  'chrostosoma_thoracicum_05x05.wav',
+%                  'creatonotos_01x01.wav',
+%                  'elysius_conspersus_11x11.wav',
+%                  'epidesma_oceola_06x06.wav',
+%                  'eucereon_appunctata_13x13.wav',
+%                  'eucereon_hampsoni_11x11.wav',
+%                  'eucereon_obscurum_14x14.wav',
+%                  'gl005_11x11.wav',
+%                  'gl116_05x05.wav',
+%                  'hypocladia_militaris_09x09.wav',
+%                  'idalu_fasciipuncta_05x05.wav',
+%                  'idalus_daga_18x18.wav',
+%                  'melese_12x12_01_PK1297.wav',
+%                  'neritos_cotes_10x10.wav',
+%                  'ormetica_contraria_peruviana_09x09.wav',
+%                  'syntrichura_12x12.wav'};
+
 % %% Open data
 % clear
 % clc

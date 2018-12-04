@@ -8,7 +8,9 @@
 clear
 clc
 close all
-base_path = '../../TEST/';
+
+base_path = '../../Recordings/Carales_astur/PK1289/';
+
 [file,path] = uigetfile([base_path, '/*.wav'],'select a wav file');
 open(fullfile(path,file))
 

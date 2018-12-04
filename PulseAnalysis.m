@@ -7,19 +7,33 @@
 clear
 clc
 close all
-base_path = '../../TEST/';
+
+base_path = '../../Recordings/';
+species = 'Carales_astur';
+animal = 'PK1289';
+recnr = 'Pk12890007';
+
+rec_path = [base_path, species, '/', animal, '/', recnr, '/'];
+
+%%
+% base_path = '../../Recordings/';
+% species = 'Carales_astur';
+% animal = 'callseries_Pk12750009_2.251';
+% 
+% rec_path = [base_path, species, '/', animal, '/'];
 
 % Select single call audio file
-[file,path] = uigetfile([base_path, '/*.wav'],'select a wav file');
+[file,path] = uigetfile([rec_path, '/*.wav'],'select a wav file');
 open(fullfile(path,file))
 
 load([path, file(1:end-4), '/samples.mat'])
 samplingrate = 480 * 1000;
 
 %% Choose analysis window
+clc
 % disp(['min. pulse length: ', num2str(min(singlepulselength)), ' samples'])
 % ---------------------------------
-ms = 0.25; % estimate for pulse length in milliseconds
+ms = 0.2; % estimate for pulse length in milliseconds
 start = -0.02; % start of pulse relative to peak detection in milliseconds
 % ---------------------------------
 pulsewindowstart = round((start/1000)*samplingrate);
@@ -44,6 +58,9 @@ noPulses = max([noPulsesA, noPulsesP]);
 % Plot Raw Pulses to determine analysis window
 figure('units','normalized','outerposition',[0 0.5 1 0.5]);
 plot_stuff(time, pulses.active, pulses.passive)
+
+disp(['Active Pulses: ', num2str(noPulsesA)])
+disp(['Passive Pulses: ', num2str(noPulsesP)])
 
 %% Cross Correlation
 windowstart = 1;
