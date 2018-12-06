@@ -110,18 +110,19 @@ ylabel('Frequency [kHz]', 'fontsize', 10, 'FontName', fontfamlily)
 
 subplot(2,1,2)
 plot(tt*1000,data,'color', 'black')
-% hold on
-% for i = 1:noPulsesA
-%     plot((time(samples.active(i):samples.active(i)+5))/fs*1000, data(samples.active(i):samples.active(i)+5), 'r')
-% end
-% for i = 1:noPulsesP
-%     plot((time(samples.passive(i):samples.passive(i)+5))/fs*1000, data(samples.passive(i):samples.passive(i)+5), 'b')
-% end
+hold on
+for i = 1:noPulsesA
+    plot(tt(samples.active(i))*1000, max(data), 'r.')
+end
+hold on
+for i = 1:noPulsesP
+    plot(tt(samples.passive(i))*1000, max(data), 'b.')
+end
 
 xlim([0, tt(end)*1000])
 set(gca, 'fontsize', 10, 'FontName', fontfamlily)
 xlabel('Time [ms]', 'FontSize', 10, 'FontName', fontfamlily)
-ylabel('Amplitude', 'fontsize', 10, 'FontName', fontfamlily)
+ylabel('Amplitude', 'Fontsize', 10, 'FontName', fontfamlily)
 box off
 colorbar('Visible','off')
 

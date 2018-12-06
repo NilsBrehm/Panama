@@ -1,4 +1,5 @@
-path = '/media/brehm/Data/Panama/Recordings/Carales_astur/PK1289/Pk12890006/call_nr_1/';
+clc
+path = '/media/brehm/Data/Panama/DataForPaper/BCI/gl061 syntrichura sp/same number pulses/BCI12040016_5/';
 f_S = 'Spectrogram.png';
 f_AA = 'MatrixPlot_AA.png';
 f_PP = 'MatrixPlot_PP.png';
@@ -29,9 +30,10 @@ save_figs = 1;
     axis equal
  end
  
- figname = [path, 'overview.png'];
+ figname = [path, 'overview'];
  if save_figs == 1
-     export_fig(figname, '-r300', '-q101')
+%      export_fig(figname, '-r300', '-q101')
+     export_fig([figname, '.pdf'], '-r300', '-q101')
      close
  end
  disp('overview saved')
