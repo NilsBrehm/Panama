@@ -7,13 +7,15 @@
 clear
 clc
 close all
+% 
+% base_path = '../../Recordings/';
+% species = 'Carales_astur';
+% animal = 'PK1289';
+% recnr = 'Pk12890007';
+% 
+% rec_path = [base_path, species, '/', animal, '/', recnr, '/'];
 
-base_path = '../../Recordings/';
-species = 'Carales_astur';
-animal = 'PK1289';
-recnr = 'Pk12890007';
-
-rec_path = [base_path, species, '/', animal, '/', recnr, '/'];
+rec_path = '/media/brehm/Data/Panama/DataForPaper/callseries/PP124_A83540002_480kHz_3.5sec/';
 
 %%
 % base_path = '../../Recordings/';
@@ -33,7 +35,7 @@ samplingrate = 480 * 1000;
 clc
 % disp(['min. pulse length: ', num2str(min(singlepulselength)), ' samples'])
 % ---------------------------------
-ms = 0.2; % estimate for pulse length in milliseconds
+ms = 0.3; % estimate for pulse length in milliseconds
 start = -0.02; % start of pulse relative to peak detection in milliseconds
 % ---------------------------------
 pulsewindowstart = round((start/1000)*samplingrate);
@@ -64,8 +66,10 @@ disp(['Passive Pulses: ', num2str(noPulsesP)])
 
 %% Cross Correlation
 windowstart = 1;
-windowend = length(pulses.active);
-
+% sz_a = size(pulses.active);
+% sz_p = size(pulses.passive);
+% windowend = min([sz_a(1), sz_p(1)]);
+windowend = pulsewindowend;
 [ccAP, MaxCorr_AP, BestLag_AP] = crosscorr(pulses.active, pulses.passive, windowstart, windowend, 'coeff');
 [ccAA, MaxCorr_AA, BestLag_AA] = crosscorr(pulses.active, pulses.active, windowstart, windowend, 'coeff');
 [ccPP, MaxCorr_PP, BestLag_PP] = crosscorr(pulses.passive, pulses.passive, windowstart, windowend, 'coeff');

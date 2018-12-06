@@ -4,16 +4,19 @@
 % Copyright Nils Brehm 2018
 
 %%
+rec_path = [pathname, '/'];
+
+%%
 clear
 clc
 close all
-base_path = '../../Recordings/';
+base_path = '../../DataForPaper/callseries/PP111_A82750026_480kHz_4sec/';
 species = 'Carales_astur';
 animal = 'PK1289';
 recnr = 'Pk12890007';
 
 rec_path = [base_path, species, '/', animal, '/', recnr, '/'];
-
+rec_path = base_path;
 %% Get names of recordings
 listing = dir(rec_path);
 recs = {};
