@@ -275,6 +275,14 @@ if isempty(found_pulses)
     samples = []; pulse_duration = []; freq = []; power = [];
     return
 end
+
+% if length(found_pulses) <= 1
+%     disp('Only one pulse was found: Min. 2 pulses are requiered!')
+%     disp('Recording was dismissed')
+%     samples = []; pulse_duration = []; freq = []; power = [];
+%     return
+% end
+
 if apriori
     s = sort(found_pulses(1,:));
     d = diff(s);
@@ -305,17 +313,78 @@ if show_plot(2)
             %             title('Press "n" to redo pulse detection')
             currkey=1;
         elseif strcmp(currkey, 'r') % Go back and do it again
-            prompt = {'Threshold Factor:','Limit Left:','Limit Right:','Envelope Threshold Factor'};
+            prompt = {'Threshold Factor:','Limit Left:','Limit Right:',...
+                'Envelope Threshold Factor', 'Manual Correction (0=Off)'};
             dlg_title = 'Detection Settings';
             num_lines = 1;
-            defaultans = {num2str(th_factor), num2str(limit_left), num2str(limit_right), num2str(env_th_factor)};
+            defaultans = {num2str(th_factor), num2str(limit_left),...
+                num2str(limit_right), num2str(env_th_factor), ...
+                num2str(0)};
             answer = inputdlg(prompt,dlg_title,num_lines,defaultans);
             limit_left = str2double(answer{2});
             limit_right = str2double(answer{3});
             th_factor = str2double(answer{1});
             env_th_factor = str2double(answer{4});
-            redo = 1;
-            currkey=1;
+            ma = answer{5};
+            manual_correction_mode = str2double(ma);
+            if manual_correction_mode == 1
+                disp('Entering manual correction mode')
+                close all
+                figure(1)
+                plot(x, 'k'); 
+                hold on;
+                plot(samples.active, x(samples.active), 'rx')
+                hold on;
+                plot(samples.passive, x(samples.passive), 'bx')
+                hold on;
+                title(['A: ', num2str(length(samples.active)), ' and ', 'P: ', num2str(length(samples.passive))])
+                xlabel('Please mark pulses [start: space, left click: active, rigt click: passive]')
+                bu = 0;
+                jj = 1;
+                % Select pulses with mouse until space (32) is pressed
+                % left mouse = active, right mouse = passive
+                while bu ~= 32
+                    pause('on');
+                    pause;
+                    [px(jj), py(jj), bu] =  ginput(1);
+                    button(jj) = bu;
+                    % Update plot
+                    if bu == 1
+                        cc = 'red';
+                    else
+                        cc = 'blue';
+                    end
+                    plot(px(jj), x(int16(px(jj))), 'color',cc, 'marker', 'o', 'markersize', 10, 'MarkerFaceColor', cc); 
+                    hold on;
+                    plot(px(jj), x(int16(px(jj))), 'color', 'black', 'marker', 'x', 'markersize', 5); 
+                    hold on;
+%                     pan(gcf,'on')
+                    pan('off')
+                    hCMZ = uicontextmenu;
+                    hZMenu = uimenu('Parent',hCMZ,'Label','Switch to zoom','Callback','zoom(gcbf,''on'')');
+                    hZoom = pan(gcf);
+                    hZoom.UIContextMenu = hCMZ;
+                    pan('on')
+                    jj = jj + 1;
+                end
+                % Put manually marked pulses into data set
+                samples.active = int16(px(button == 1));
+                samples.passive = int16(px(button == 3));
+                
+                close all
+%                 figure(1)
+%                 plot(x, 'k'); hold on; plot(samples.active, x(samples.active), 'ro'); 
+%                 hold on;
+%                 plot(samples.passive, x(samples.passive), 'bo');
+%                 title(['A: ', num2str(length(samples.active)), ' and ', 'P: ', num2str(length(samples.passive))])
+% %                 xlabel('Please mark pulses [left click: active, rigt click: passive]')
+%                 
+                redo = 0;
+                currkey=1;
+            else
+                redo = 1;
+                currkey=1;
+            end
         elseif strcmp(currkey, 'escape') % Exit
             disp('Exit Program')
             close all

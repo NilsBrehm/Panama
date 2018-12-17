@@ -4,7 +4,7 @@
 % Copyright Nils Brehm 2018
 
 %%
-rec_path = [pathname, '/'];
+% rec_path = [pathname, '/'];
 
 %%
 clear
@@ -30,8 +30,9 @@ end
 
 %% Start Detection
 filter_signal = 'on';
+apriori = true; % assumption that first half is active and second is passive
 add_to_left = false;
-skip_pulses = false;
+skip_pulses = true;
 crashed = 0;
 
 % Default Peak Detection Parameters:
@@ -116,13 +117,29 @@ while k <= length(recs)
     title(recs{k}, 'Interpreter', 'None')
     xlabel(['Found: ', num2str(length(locs_ps)), ' Pulses'])
     
+%     if length(locs_ps)<=1
+%         disp('Only one pulse was found. Min. 2 pulses are requiered!')
+%         continue
+%     end
+
     currkey=0;
     % do not move on until enter key is pressed
     while currkey~=1
         pause; % wait for a keypress
         currkey=get(gcf,'CurrentKey');
         if strcmp(currkey, 'return')
-            currkey=1;
+            if length(locs_ps)<=1
+                disp('Only one pulse was found. Min. 2 pulses are requiered!')
+                currkey=0;
+                hold off
+                plot(x, 'k')
+                hold on
+                plot(locs_ps, x(locs_ps), 'mx', 'MarkerSize', 10)
+                title(recs{k}, 'Interpreter', 'None')
+                xlabel(['Found only: ', num2str(length(locs_ps)), ' Pulse: Min. 2 pulses are requiered!'])
+            else
+                currkey=1;
+            end
         elseif strcmp(currkey, 'c')
             currkey=0;
             prompt = {'threshold factor:','min peak distance:'};
@@ -149,16 +166,19 @@ while k <= length(recs)
         end
     end
     % close all
-    
     % Find Active and Passive Pulses and detect pulse duration
     
     filter_pulse = false;
     if skip_pulses == true
         show = [false, true];
-        prompt = {'Threshold Factor:','Limit Left:','Limit Right:','Envelope Threshold Factor', 'Sampling Rate'};
+        prompt = {'Threshold Factor:','Limit Left:','Limit Right:',...
+            'Envelope Threshold Factor', 'Sampling Rate', ...
+            'Apriori (0=False)'};
         dlg_title = 'Detection Settings';
         num_lines = 1;
-        defaultans = {num2str(th_factor), num2str(limit_left), num2str(limit_right), num2str(env_th_factor), num2str(fs)};
+        defaultans = {num2str(th_factor), num2str(limit_left), ...
+            num2str(limit_right), num2str(env_th_factor), ...
+            num2str(fs), num2str(0)};
         answer = inputdlg(prompt,dlg_title,num_lines,defaultans);
         limit_left = str2double(answer{2});
         limit_right = str2double(answer{3});
@@ -166,6 +186,12 @@ while k <= length(recs)
         env_th_factor = str2double(answer{4});
         fs = str2double(answer{5});
         samplingrate = fs;
+        aapp = str2double(answer{6});
+        if aapp == 0
+            apriori = false;
+        else
+            apriori = true;
+        end
     else
         show = [true, true];
         th_factor = 0.4 ; % th = th_factor * mad(pulse)
@@ -175,7 +201,6 @@ while k <= length(recs)
         filter_pulse = false;
     end
     method = 'raw';
-    apriori = false; % assumption that first half is active and second is passive
     [samples, pulse_duration, freq, freq_range, power] = activeorpassive(x, th_factor,...
         locs_ps, fs, limit_left, limit_right, env_th_factor, filter_pulse, method, apriori, show);
     
