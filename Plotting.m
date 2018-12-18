@@ -18,7 +18,8 @@
 
 %% Plotting Parameters
 clc
-filename = [path, file(1:end-4), '/'];
+filename = [rec_path, 'call_nr_', num2str(call_nr), '/'];
+
 toomanypulses = 0;
 showvalues = false;
 callseries = 0;
@@ -238,5 +239,5 @@ if size(MaxCorr_AP, 1) == size(MaxCorr_AP, 2)
 end
 
 %% Save Data
-save([filename, file(1:end-4), '.mat'])
+save([filename, 'CompleteAnalysis.mat'])
 disp('Plotting done and data saved')

@@ -9,23 +9,23 @@
 %%
 clear
 clc
-close all
-base_path = '../../DataForPaper/callseries/PP111_A82750026_480kHz_4sec/';
-species = 'Carales_astur';
-animal = 'PK1289';
-recnr = 'Pk12890007';
+base_path = '../../Recordings/Carales_astur/PK1285/';
 
-rec_path = [base_path, species, '/', animal, '/', recnr, '/'];
-rec_path = base_path;
-%% Get names of recordings
-listing = dir(rec_path);
-recs = {};
-count = 1;
-for i = 3:length(listing)
-    if strcmp(listing(i).name(end-2:end), 'wav')
-        recs{count} = listing(i).name;
-        count = count + 1;
-    end
+rec_nr = 0;
+prompt = {'Recording Number:'};
+dlg_title = 'Select Recording';
+num_lines = 1;
+defaultans = {num2str(rec_nr+1)};
+answer = inputdlg(prompt,dlg_title,num_lines,defaultans);
+rec_nr = str2double(answer{1});
+list = dir([base_path, '*.wav']);
+rec_path = [base_path, list(rec_nr).name(1:end-4), '/'];
+
+% Get names of recordings
+listing = dir([rec_path, '*.wav']);
+recs = cell(1, length(listing));
+for i = 1:length(listing)
+    recs{1, i} = listing(i).name;
 end
 
 %% Start Detection

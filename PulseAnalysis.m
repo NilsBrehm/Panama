@@ -4,38 +4,43 @@
 % Copyright Nils Brehm 2018
 % -------------------------------------------------------------------------
 % Load Data
+
 clear
 clc
-close all
-% 
-% base_path = '../../Recordings/';
-% species = 'Carales_astur';
-% animal = 'PK1289';
-% recnr = 'Pk12890007';
-% 
-% rec_path = [base_path, species, '/', animal, '/', recnr, '/'];
+base_path = '../../Recordings/Carales_astur/PK1285/';
 
-rec_path = '/media/brehm/Data/Panama/DataForPaper/callseries/PP124_A83540002_480kHz_3.5sec/';
+rec_nr = 0;
+prompt = {'Recording Number:', 'Call Number:', 'Sampling Rate (kHz):'};
+dlg_title = 'Select Recording and Call';
+num_lines = 1;
+defaultans = {num2str(rec_nr+1), num2str(1), num2str(480)};
+answer = inputdlg(prompt,dlg_title,num_lines,defaultans);
+rec_nr = str2double(answer{1});
+call_nr = str2double(answer{2});
+samplingrate = str2double(answer{3}) * 1000;
+list = dir([base_path, '*.wav']);
+rec_path = [base_path, list(rec_nr).name(1:end-4), '/'];
 
-%%
-% base_path = '../../Recordings/';
-% species = 'Carales_astur';
-% animal = 'callseries_Pk12750009_2.251';
-% 
-% rec_path = [base_path, species, '/', animal, '/'];
+% Get names of recordings
+listing = dir([rec_path, '*.wav']);
+recs = cell(1, length(listing));
+for i = 1:length(listing)
+    recs{1, i} = listing(i).name;
+end
 
-% Select single call audio file
-[file,path] = uigetfile([rec_path, '/*.wav'],'select a wav file');
-open(fullfile(path,file))
-
-load([path, file(1:end-4), '/samples.mat'])
-samplingrate = 480 * 1000;
+% Load Data
+try
+    load([rec_path, 'call_nr_', num2str(call_nr), '/samples.mat'])
+    [data, fs] = audioread([rec_path, 'call_nr_', num2str(call_nr), '.wav']);
+catch
+    error('Cannot find data!')
+end
 
 %% Choose analysis window
 clc
 % disp(['min. pulse length: ', num2str(min(singlepulselength)), ' samples'])
 % ---------------------------------
-ms = 0.3; % estimate for pulse length in milliseconds
+ms = 0.2; % estimate for pulse length in milliseconds
 start = -0.02; % start of pulse relative to peak detection in milliseconds
 % ---------------------------------
 pulsewindowstart = round((start/1000)*samplingrate);
@@ -60,9 +65,19 @@ noPulses = max([noPulsesA, noPulsesP]);
 % Plot Raw Pulses to determine analysis window
 figure('units','normalized','outerposition',[0 0.5 1 0.5]);
 plot_stuff(time, pulses.active, pulses.passive)
-
 disp(['Active Pulses: ', num2str(noPulsesA)])
 disp(['Passive Pulses: ', num2str(noPulsesP)])
+disp("Press 'ENTER' to continue")
+currkey = 0;
+while currkey ~= 1
+    pause('on');
+    pause;
+    currkey = get(gcf,'CurrentKey');
+    if strcmp(currkey, 'return')
+        currkey = 1;
+        close all
+    end
+end
 
 %% Cross Correlation
 windowstart = 1;
@@ -93,7 +108,7 @@ windowend = pulsewindowend;
 % [crosscorrelation_spc, MaxCorr_spc, BestLag_spc] = crosscorr(specpulses.active, specpulses.passive, windowstart, 60, 'coeff');
 
 % Save Data
-filename = [path, file(1:end-4), '/matrix_analysis'];
+filename = [rec_path, 'call_nr_', num2str(call_nr), '/matrix_analysis'];
 save([filename, '.mat'])
 disp('Analysis done and data saved')
 
