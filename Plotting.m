@@ -17,7 +17,7 @@
 % % filename = [path, file(1:end-4), '\'];
 
 %% Plotting Parameters
-clc
+% clc
 filename = [rec_path, 'call_nr_', num2str(call_nr), '/'];
 
 toomanypulses = 0;
@@ -227,7 +227,7 @@ disp('finished Marked plot')
 
 %% Combined Matrix Plot (Only if active and passive pulse nr. is equal)
 if size(MaxCorr_AP, 1) == size(MaxCorr_AP, 2)
-    figure()
+    figure('Visible', displayfigs)
     combined_matrix_plot(MaxCorr_AP, 0.8, showvalues)
     figname = [filename, 'CombinedMatrixPlot', '.png'];
     set(gcf, 'Color', 'white')
@@ -235,7 +235,7 @@ if size(MaxCorr_AP, 1) == size(MaxCorr_AP, 2)
         export_fig(figname,'-m2')
         close
     end
-    disp('finished Combined Matrix Plot')
+    disp('++ finished Combined Matrix Plot ++')
 end
 
 %% Save Data

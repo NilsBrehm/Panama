@@ -28,7 +28,9 @@ for i = 1:length(listing)
     recs{1, i} = listing(i).name;
 end
 
-%% Start Detection
+pause(2)
+
+% Start Detection
 filter_signal = 'on';
 apriori = true; % assumption that first half is active and second is passive
 add_to_left = false;
@@ -301,7 +303,8 @@ end
 
 disp('All Done')
 close all
-%% Make Table
+
+% Make Table
 VarNames = {'Recording', 'PulseNr', 'Duration', 'Frequency','FreqMin',...
     'FreqMax', 'Power', 'Phase', 'PulseTime', 'PulseSample', 'IPI', 'CallDuration'};
 T = cell2table(results, 'VariableNames', VarNames);
@@ -311,7 +314,7 @@ save([rec_path, 'complete_detection_analysis.mat'])
 
 % Save to csv
 writetable(T,[rec_path, 'DescriptiveCallStatistics.csv'])
-disp('All Data Saved')
+disp(['All Data Saved For: RecNr. ', rec_path(end-4:end-1)])
 
 %% Error Handling: Use this when program crashed
 clc

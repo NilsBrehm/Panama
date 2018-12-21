@@ -1,4 +1,6 @@
-function [samples, pulse_duration, freq, freq_range, power] = activeorpassive(x, th_factor, locs_ps, fs, limit_left, limit_right, env_th_factor, filter_pulse, method, apriori, show_plot)
+function [samples, pulse_duration, freq, freq_range, power] = ...
+    activeorpassive(x, th_factor, locs_ps, fs, limit_left, limit_right, ...
+    env_th_factor, filter_pulse, method, apriori, show_plot)
 % This function detects active and passive pulses
 % Be aware that this function interacts dynamically with the PulseDetection
 % interface
@@ -242,13 +244,18 @@ while i <= length(locs_ps)
     end
     
     % recalculate original position
-    if apriori
-        found_pulses(1, i) = locs_ps(i) - ((limit_left+1) - pA);
-        found_pulses(2, i) = locs_ps(i) - ((limit_left+1) - pP);
-    else
-        found_pulses(1, i) = locs_ps(i) - ((limit_left+1) - peaks(1, i));
-        found_pulses(2, i) = peaks(2, i);
-    end
+    found_pulses(1, i) = locs_ps(i) - ((limit_left+1) - peaks(1, i));
+    found_pulses(2, i) = peaks(2, i);
+    
+%     if apriori
+%         found_pulses(1, i) = locs_ps(i) - ((limit_left+1) - pA);
+%         found_pulses(2, i) = locs_ps(i) - ((limit_left+1) - pP);
+%     else
+%         found_pulses(1, i) = locs_ps(i) - ((limit_left+1) - peaks(1, i));
+%         found_pulses(2, i) = peaks(2, i);
+%     end
+%     
+        
     %    % CrosCorrleation with Sinus
     %    [r1, r2] = avsp_sincorr(pulse, 1/(480*1000));
     %    if r1 > 0
@@ -283,15 +290,35 @@ end
 %     return
 % end
 
+% if apriori
+%     s = sort(found_pulses(1,:));
+%     d = diff(s);
+%     idx = find(d > 2000);
+%     samples.active = found_pulses(1, 1:idx(1));
+%     samples.passive = found_pulses(2, idx(1)+1:end);
+%     
+%     %
+% else
+%     samples.active = found_pulses(1, found_pulses(2,:) == 0);
+%     samples.passive = found_pulses(1, found_pulses(2,:) == 1);
+% end
+
+samples.active = found_pulses(1, found_pulses(2,:) == 0);
+samples.passive = found_pulses(1, found_pulses(2,:) == 1);
+
 if apriori
-    s = sort(found_pulses(1,:));
-    d = diff(s);
-    idx = find(d > 2000);
-    samples.active = found_pulses(1, 1:idx(1));
-    samples.passive = found_pulses(2, idx(1)+1:end);
-else
-    samples.active = found_pulses(1, found_pulses(2,:) == 0);
-    samples.passive = found_pulses(1, found_pulses(2,:) == 1);
+    dummy = sort([samples.active, samples.passive]);
+    le = length(dummy);
+    if mod(le, 2)== 0  % same number of active and passive pulses
+        center = round(le/2);
+        samples.active = dummy(1:center);
+        samples.passive = dummy(center+1:end);
+    else % unequal number of active and passive pulses
+        center = round(le/2) - mod(le, 2);
+        samples.active = dummy(1:center+1);
+        samples.passive = dummy(center+2:end);
+    end
+    
 end
 
 if show_plot(2)
