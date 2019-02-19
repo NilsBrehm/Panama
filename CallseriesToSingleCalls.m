@@ -12,8 +12,8 @@
 clear
 clc
 close all
+base_path = '../../Recordings/Melese_incertus/Pk1297/';
 
-base_path = '../../Recordings/Carales_astur/PK1285/';
 list = dir(base_path);
 samplingrate = 480 * 1000;
 % 
@@ -21,6 +21,9 @@ samplingrate = 480 * 1000;
 % open(fullfile(path,file))
 % 
 % samplingrate = 480 * 1000;
+disp('Press ENTER for good recording')
+disp('Press SPACE for good recording')
+disp('Press ESC to exit')
 
 bad_recs_idx = [];
 good_recs_idx = [];
@@ -86,6 +89,10 @@ end
 clc
 close all
 
+% ====================================================
+base_path = '../../Recordings/Melese_incertus/Pk1297/';
+% ====================================================
+
 prompt = {'Recording Number:'};
 dlg_title = 'Select Recording';
 num_lines = 1;
@@ -99,7 +106,7 @@ disp('-- First click: Call starting point --')
 disp('-- Second click: Call ending point --')
 disp('-- Press ENTER or ESC to end program --')
 
-base_path = '../../Recordings/Carales_astur/PK1285/';
+
 list = dir(base_path);
 
 load([base_path, 'recordings.mat'])

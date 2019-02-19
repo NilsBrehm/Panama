@@ -9,7 +9,7 @@
 %%
 clear
 clc
-base_path = '../../Recordings/Carales_astur/PK1285/';
+base_path = '../../Recordings/Melese_incertus/Pk1297/';
 
 rec_nr = 0;
 prompt = {'Recording Number:'};
@@ -32,7 +32,7 @@ pause(2)
 
 % Start Detection
 filter_signal = 'on';
-apriori = true; % assumption that first half is active and second is passive
+apriori = false; % assumption that first half is active and second is passive
 add_to_left = false;
 skip_pulses = true;
 crashed = 0;
