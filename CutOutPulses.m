@@ -16,15 +16,17 @@ for i=1:length(samples.active)
     % Remove y-offset
     temp(:,i)=temp(:,i)-mean(temp(1:baseline,i));
 end
-pulses.active=temp;clear temp
+pulses.active=temp;
+clear temp
 
 % Compute passive single pulses
 for i=1:length(samples.passive)
-    temp(:,i)=data(samples.passive(i)+pulsewindowstart:samples.passive(i)+pulsewindowend);
+    temp2(:,i)=data(samples.passive(i)+pulsewindowstart:samples.passive(i)+pulsewindowend);
     % Remove y-offset
-    temp(:,i)=temp(:,i)-mean(temp(1:baseline,i));
+    temp2(:,i)=temp2(:,i)-mean(temp2(1:baseline,i));
 end
-pulses.passive=temp;clear temp
+pulses.passive=temp2;
+clear temp2
 
 
 % Compute Envelope of single pulses using hilbert transform

@@ -4,7 +4,9 @@
 % Copyright Nils Brehm 2018
 % -------------------------------------------------------------------------
 % Load Data
-base_path = '../../Recordings/Carales_astur/PK1285/';
+% Import data path name
+bb = importdata('datapath.txt');
+base_path = bb{1};
 
 prompt = {'Recording Number:', 'Call Number:', 'Sampling Rate (kHz):', ...
     'Run Plotting (1=On):'};

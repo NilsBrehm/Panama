@@ -31,7 +31,7 @@ else
 end
 
 % Load colormap
-load('/media/brehm/Data/Panama/code/Panama/selena_colormap.mat')
+load('selena_colormap.mat')
 %load('D:\Masterarbeit\PanamaProject\Panama\selena_colormap.mat')
 
 % Set Font:

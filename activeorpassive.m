@@ -365,14 +365,14 @@ if show_plot(2)
                 plot(samples.passive, x(samples.passive), 'bx')
                 hold on;
                 title(['A: ', num2str(length(samples.active)), ' and ', 'P: ', num2str(length(samples.passive))])
-                xlabel('Please mark pulses [start: space, left click: active, rigt click: passive]')
+                xlabel('Please mark pulses [Finish: space, left click: active, rigt click: passive]')
                 bu = 0;
                 jj = 1;
                 % Select pulses with mouse until space (32) is pressed
                 % left mouse = active, right mouse = passive
                 while bu ~= 32
-                    pause('on');
-                    pause;
+%                     pause('on');
+%                     pause;
                     [px(jj), py(jj), bu] =  ginput(1);
                     button(jj) = bu;
                     % Update plot

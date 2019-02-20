@@ -12,7 +12,9 @@
 clear
 clc
 close all
-base_path = '../../Recordings/Melese_incertus/Pk1297/';
+% Import data path name
+bb = importdata('datapath.txt');
+base_path = bb{1};
 
 list = dir(base_path);
 samplingrate = 480 * 1000;
@@ -90,7 +92,9 @@ clc
 close all
 
 % ====================================================
-base_path = '../../Recordings/Melese_incertus/Pk1297/';
+% Import data path name
+bb = importdata('datapath.txt');
+base_path = bb{1};
 % ====================================================
 
 prompt = {'Recording Number:'};

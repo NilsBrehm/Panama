@@ -9,7 +9,10 @@
 %%
 clear
 clc
-base_path = '../../Recordings/Melese_incertus/Pk1297/';
+
+% Import data path name
+bb = importdata('datapath.txt');
+base_path = bb{1};
 
 rec_nr = 0;
 prompt = {'Recording Number:'};
